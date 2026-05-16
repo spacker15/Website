@@ -1,1 +1,51 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --color-brand-teal: #00a9b7;
+  --color-brand-teal-50: #e6f8fa;
+  --color-brand-teal-100: #c5edf1;
+  --color-brand-teal-200: #8fdbe2;
+  --color-brand-teal-500: #00a9b7;
+  --color-brand-teal-600: #008e9a;
+  --color-brand-teal-700: #007079;
+  --color-brand-teal-900: #003c42;
+
+  --color-brand-pink: #ff4fa3;
+  --color-brand-pink-50: #ffe9f3;
+  --color-brand-pink-100: #ffcfe2;
+  --color-brand-pink-500: #ff4fa3;
+  --color-brand-pink-600: #e62989;
+  --color-brand-pink-700: #b51e6c;
+
+  --color-brand-purple: #6b3fa0;
+  --color-brand-purple-50: #f0e9f8;
+  --color-brand-purple-100: #dccaee;
+  --color-brand-purple-500: #6b3fa0;
+  --color-brand-purple-600: #56327f;
+  --color-brand-purple-700: #41255f;
+
+  --color-ink: #0b1220;
+  --color-ink-muted: #475569;
+  --color-ink-subtle: #94a3b8;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f8fafc;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-oswald), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  background: var(--color-surface);
+}
+
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
