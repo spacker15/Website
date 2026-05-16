@@ -19,6 +19,9 @@ type Result =
   | { ok: true; redirectTo?: string }
   | { ok: false; error: string };
 
+const GENERIC_ERROR =
+  "We couldn't reach the auth service. Please try again in a moment.";
+
 async function originUrl() {
   const h = await headers();
   const host = h.get("x-forwarded-host") ?? h.get("host");
@@ -32,13 +35,18 @@ export async function signInWithPassword(
 ): Promise<Result> {
   const parsed = credSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
-  const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({
-    email: parsed.data.email,
-    password: parsed.data.password,
-  });
-  if (error) return { ok: false, error: error.message };
-  return { ok: true, redirectTo: parsed.data.next ?? "/dashboard" };
+  try {
+    const supabase = await createClient();
+    const { error } = await supabase.auth.signInWithPassword({
+      email: parsed.data.email,
+      password: parsed.data.password,
+    });
+    if (error) return { ok: false, error: error.message };
+    return { ok: true, redirectTo: parsed.data.next ?? "/dashboard" };
+  } catch (err) {
+    console.error("signInWithPassword failed:", err);
+    return { ok: false, error: GENERIC_ERROR };
+  }
 }
 
 export async function signUpWithPassword(
@@ -46,25 +54,30 @@ export async function signUpWithPassword(
 ): Promise<Result> {
   const parsed = credSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
-  const supabase = await createClient();
-  const origin = await originUrl();
-  const next = parsed.data.next ?? "/dashboard";
-  const { data, error } = await supabase.auth.signUp({
-    email: parsed.data.email,
-    password: parsed.data.password,
-    options: {
-      emailRedirectTo: `${origin}/login/callback?next=${encodeURIComponent(next)}`,
-    },
-  });
-  if (error) return { ok: false, error: error.message };
-  // If email confirmation is required, no session yet; nudge the user.
-  if (!data.session) {
-    return {
-      ok: true,
-      redirectTo: `/login?sent=1${parsed.data.next ? `&next=${encodeURIComponent(parsed.data.next)}` : ""}`,
-    };
+  try {
+    const supabase = await createClient();
+    const origin = await originUrl();
+    const next = parsed.data.next ?? "/dashboard";
+    const { data, error } = await supabase.auth.signUp({
+      email: parsed.data.email,
+      password: parsed.data.password,
+      options: {
+        emailRedirectTo: `${origin}/login/callback?next=${encodeURIComponent(next)}`,
+      },
+    });
+    if (error) return { ok: false, error: error.message };
+    // If email confirmation is required, no session yet; nudge the user.
+    if (!data.session) {
+      return {
+        ok: true,
+        redirectTo: `/login?sent=1${parsed.data.next ? `&next=${encodeURIComponent(parsed.data.next)}` : ""}`,
+      };
+    }
+    return { ok: true, redirectTo: next };
+  } catch (err) {
+    console.error("signUpWithPassword failed:", err);
+    return { ok: false, error: GENERIC_ERROR };
   }
-  return { ok: true, redirectTo: next };
 }
 
 export async function sendMagicLink(
@@ -72,15 +85,20 @@ export async function sendMagicLink(
 ): Promise<Result> {
   const parsed = magicSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
-  const supabase = await createClient();
-  const origin = await originUrl();
-  const next = parsed.data.next ?? "/dashboard";
-  const { error } = await supabase.auth.signInWithOtp({
-    email: parsed.data.email,
-    options: {
-      emailRedirectTo: `${origin}/login/callback?next=${encodeURIComponent(next)}`,
-    },
-  });
-  if (error) return { ok: false, error: error.message };
-  return { ok: true };
+  try {
+    const supabase = await createClient();
+    const origin = await originUrl();
+    const next = parsed.data.next ?? "/dashboard";
+    const { error } = await supabase.auth.signInWithOtp({
+      email: parsed.data.email,
+      options: {
+        emailRedirectTo: `${origin}/login/callback?next=${encodeURIComponent(next)}`,
+      },
+    });
+    if (error) return { ok: false, error: error.message };
+    return { ok: true };
+  } catch (err) {
+    console.error("sendMagicLink failed:", err);
+    return { ok: false, error: GENERIC_ERROR };
+  }
 }
