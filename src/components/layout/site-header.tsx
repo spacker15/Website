@@ -7,7 +7,7 @@ import { Logo } from "@/components/layout/logo";
 import { cn } from "@/lib/utils";
 import { siteConfig } from "@/lib/site-config";
 
-export function SiteHeader() {
+export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
   const [open, setOpen] = useState(false);
   return (
     <header className="sticky top-0 z-40 w-full border-b border-neutral-200 bg-white/90 backdrop-blur">
@@ -26,6 +26,30 @@ export function SiteHeader() {
               {item.label}
             </Link>
           ))}
+          <span className="mx-1 h-5 w-px bg-neutral-300" aria-hidden />
+          {signedIn ? (
+            <>
+              <Link
+                href="/dashboard"
+                className="rounded-md px-3 py-2 text-sm font-medium text-brand-teal-700 hover:bg-brand-teal-50"
+              >
+                Dashboard
+              </Link>
+              <Link
+                href="/logout"
+                className="rounded-md px-3 py-2 text-sm font-medium text-ink-muted hover:bg-surface-muted"
+              >
+                Sign out
+              </Link>
+            </>
+          ) : (
+            <Link
+              href="/login"
+              className="rounded-md px-3 py-2 text-sm font-medium text-brand-teal-700 hover:bg-brand-teal-50"
+            >
+              Sign in
+            </Link>
+          )}
         </nav>
 
         <button
@@ -61,6 +85,33 @@ export function SiteHeader() {
               {item.label}
             </Link>
           ))}
+          <div className="my-2 h-px bg-neutral-200" />
+          {signedIn ? (
+            <>
+              <Link
+                href="/dashboard"
+                onClick={() => setOpen(false)}
+                className="rounded-md px-3 py-3 text-base font-medium text-brand-teal-700"
+              >
+                Dashboard
+              </Link>
+              <Link
+                href="/logout"
+                onClick={() => setOpen(false)}
+                className="rounded-md px-3 py-3 text-base font-medium text-ink-muted"
+              >
+                Sign out
+              </Link>
+            </>
+          ) : (
+            <Link
+              href="/login"
+              onClick={() => setOpen(false)}
+              className="rounded-md px-3 py-3 text-base font-medium text-brand-teal-700"
+            >
+              Sign in
+            </Link>
+          )}
         </nav>
       </div>
     </header>
