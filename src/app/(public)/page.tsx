@@ -3,7 +3,7 @@ import { ArrowRight, Calendar, Heart, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/layout/logo";
 import { getAllNewsPosts } from "@/lib/mdx";
-import { sponsors } from "../../../content/sponsors";
+import { sponsors } from "@/lib/sponsors";
 
 export default async function HomePage() {
   const posts = (await getAllNewsPosts()).slice(0, 3);

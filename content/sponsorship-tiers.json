@@ -1,0 +1,45 @@
+[
+  {
+    "id": "hat-trick",
+    "name": "Hat Trick",
+    "amount": "$1,500+",
+    "tagline": "Three goals' worth of impact — our premier tier.",
+    "benefits": [
+      "Tall feather flag with your logo displayed at all home games",
+      "Featured placement (large logo + link) on the sponsors page",
+      "Dedicated post and story on Instagram and Facebook",
+      "Recognition in the season-end thank-you newsletter"
+    ]
+  },
+  {
+    "id": "top-shelf",
+    "name": "Top Shelf",
+    "amount": "$750",
+    "tagline": "Premium placement, top-corner visibility.",
+    "benefits": [
+      "Logo on the sponsors page with link to your business",
+      "Social media shout-out (Instagram + Facebook)",
+      "Mid-season recognition newsletter mention"
+    ]
+  },
+  {
+    "id": "sauce",
+    "name": "Sauce",
+    "amount": "$400",
+    "tagline": "Slick support that keeps the team moving.",
+    "benefits": [
+      "Logo on the sponsors page",
+      "Social media shout-out"
+    ]
+  },
+  {
+    "id": "ground-ball",
+    "name": "Ground Ball",
+    "amount": "$150",
+    "tagline": "Every possession counts — small but mighty.",
+    "benefits": [
+      "Name listed on the sponsors page",
+      "Thank-you in the season-end newsletter"
+    ]
+  }
+]

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { sponsors, sponsorshipTiers, type Sponsor } from "../../../../content/sponsors";
+import { sponsors, sponsorshipTiers, tierAccent } from "@/lib/sponsors";
 
 export const metadata: Metadata = {
   title: "Sponsors",
@@ -10,18 +10,10 @@ export const metadata: Metadata = {
     "Sponsorship opportunities with Creek's Girls Lacrosse — packages, benefits, and how to get involved.",
 };
 
-const tierOrder: Sponsor["tier"][] = ["hat-trick", "top-shelf", "sauce", "ground-ball"];
-
-const tierAccent: Record<Sponsor["tier"], string> = {
-  "hat-trick": "from-brand-purple-500 to-brand-teal-600",
-  "top-shelf": "from-brand-pink-500 to-brand-purple-500",
-  sauce: "from-brand-teal-500 to-brand-teal-700",
-  "ground-ball": "from-brand-teal-600 to-brand-purple-600",
-};
-
 export default function SponsorsPage() {
-  const groupedCurrent = tierOrder
-    .map((tier) => ({ tier, list: sponsors.filter((s) => s.tier === tier) }))
+  // Group current sponsors by tier, preserving the tier order from JSON.
+  const groupedCurrent = sponsorshipTiers
+    .map((t) => ({ tier: t.id, name: t.name, list: sponsors.filter((s) => s.tier === t.id) }))
     .filter((g) => g.list.length > 0);
 
   return (
@@ -86,7 +78,7 @@ export default function SponsorsPage() {
               className="flex flex-col overflow-hidden rounded-xl border border-neutral-200 bg-white"
             >
               <div
-                className={`bg-gradient-to-br ${tierAccent[tier.id]} px-5 py-4 text-white`}
+                className={`bg-gradient-to-br ${tierAccent(tier.id)} px-5 py-4 text-white`}
               >
                 <p className="font-display text-xs font-semibold uppercase tracking-[0.2em] opacity-90">
                   {tier.name}
@@ -141,10 +133,10 @@ export default function SponsorsPage() {
             Thank you to our current sponsors
           </h2>
           <div className="mt-8 space-y-10">
-            {groupedCurrent.map(({ tier, list }) => (
+            {groupedCurrent.map(({ tier, name, list }) => (
               <div key={tier}>
                 <h3 className="font-display text-xs font-semibold uppercase tracking-[0.25em] text-ink-subtle">
-                  {tier}
+                  {name}
                 </h3>
                 <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {list.map((s) => (
