@@ -28,45 +28,52 @@ function bootstrapEmails(): string[] {
  * the same fetch.
  */
 export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
-  const supabase = await createClient();
-  const { data: userData } = await supabase.auth.getUser();
-  const user = userData.user;
-  if (!user || !user.email) return null;
+  try {
+    const supabase = await createClient();
+    const { data: userData } = await supabase.auth.getUser();
+    const user = userData.user;
+    if (!user || !user.email) return null;
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .maybeSingle();
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .maybeSingle();
 
-  if (!profile) {
-    // Trigger should have inserted it; if not, surface nothing rather than throw.
+    if (!profile) {
+      // Trigger should have inserted it; if not, surface nothing rather than throw.
+      return null;
+    }
+
+    const { data: roleRows } = await supabase
+      .from("profile_roles")
+      .select("role")
+      .eq("profile_id", user.id);
+
+    let roles = (roleRows ?? []).map((r) => r.role);
+
+    if (roles.length === 0 && bootstrapEmails().includes(user.email.toLowerCase())) {
+      const admin = createAdminClient();
+      if (admin) {
+        const { error } = await admin
+          .from("profile_roles")
+          .insert({ profile_id: user.id, role: "head_coach" });
+        if (!error) roles = ["head_coach"];
+      }
+    }
+
+    return {
+      id: user.id,
+      email: user.email,
+      profile: profile as Profile,
+      roles: roles as UserRole[],
+    };
+  } catch (err) {
+    // Missing env vars, network issues, or unexpected Supabase errors fall
+    // through to "no session" so public pages still render.
+    console.error("getSessionUser failed:", err);
     return null;
   }
-
-  const { data: roleRows } = await supabase
-    .from("profile_roles")
-    .select("role")
-    .eq("profile_id", user.id);
-
-  let roles = (roleRows ?? []).map((r) => r.role);
-
-  if (roles.length === 0 && bootstrapEmails().includes(user.email.toLowerCase())) {
-    const admin = createAdminClient();
-    if (admin) {
-      const { error } = await admin
-        .from("profile_roles")
-        .insert({ profile_id: user.id, role: "head_coach" });
-      if (!error) roles = ["head_coach"];
-    }
-  }
-
-  return {
-    id: user.id,
-    email: user.email,
-    profile: profile as Profile,
-    roles: roles as UserRole[],
-  };
 });
 
 export async function requireUser(): Promise<SessionUser> {
