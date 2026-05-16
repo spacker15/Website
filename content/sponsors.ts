@@ -1,4 +1,4 @@
-export type SponsorTier = "platinum" | "gold" | "silver" | "supporter";
+export type SponsorTier = "captain" | "attack" | "midfield" | "ground-ball";
 
 export type Sponsor = {
   name: string;
@@ -30,49 +30,47 @@ export type SponsorshipTier = {
  */
 export const sponsorshipTiers: SponsorshipTier[] = [
   {
-    id: "platinum",
-    name: "Platinum",
+    id: "captain",
+    name: "Captain",
     amount: "$1,500+",
-    tagline: "Our top tier — most visibility, biggest impact.",
+    tagline: "Lead the way — our top tier with the most visibility.",
     benefits: [
       "Logo on team warm-up shirts or banner at home games",
+      "Tall feather flag with your logo displayed at all home games",
       "Featured placement (large logo + link) on the sponsors page",
       "Dedicated post and story on Instagram and Facebook",
-      "Recognition in season-end thank-you newsletter",
-      "Two complimentary tickets to the end-of-season banquet",
+      "Recognition in the season-end thank-you newsletter",
     ],
   },
   {
-    id: "gold",
-    name: "Gold",
+    id: "attack",
+    name: "Attack",
     amount: "$750",
-    tagline: "Strong visibility across the season.",
+    tagline: "Strong visibility on offense across the season.",
     benefits: [
       "Logo on the sponsors page with link to your business",
       "Social media shout-out (Instagram + Facebook)",
       "Mid-season recognition newsletter mention",
-      "Recognition at the end-of-season banquet",
     ],
   },
   {
-    id: "silver",
-    name: "Silver",
+    id: "midfield",
+    name: "Midfield",
     amount: "$400",
-    tagline: "Show your support and reach our community.",
+    tagline: "Two-way support — show up for the team.",
     benefits: [
       "Logo on the sponsors page",
       "Social media shout-out",
-      "Recognition at the end-of-season banquet",
     ],
   },
   {
-    id: "supporter",
-    name: "Supporter",
+    id: "ground-ball",
+    name: "Ground Ball",
     amount: "$150",
-    tagline: "For local families and small businesses who want to chip in.",
+    tagline: "Every possession counts — for families and small businesses chipping in.",
     benefits: [
       "Name listed on the sponsors page",
-      "Thank-you in season-end newsletter",
+      "Thank-you in the season-end newsletter",
     ],
   },
 ];
