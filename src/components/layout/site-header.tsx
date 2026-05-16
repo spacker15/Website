@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
-import { Wordmark } from "@/components/layout/wordmark";
+import { Logo } from "@/components/layout/logo";
 import { cn } from "@/lib/utils";
 import { siteConfig } from "@/lib/site-config";
 
@@ -13,7 +13,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 w-full border-b border-neutral-200 bg-white/90 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
         <Link href="/" aria-label="Home" className="flex items-center">
-          <Wordmark size="md" />
+          <Logo variant="wordmark" height={40} priority />
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">

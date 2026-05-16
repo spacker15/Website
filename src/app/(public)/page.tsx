@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Calendar, Heart, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Wordmark } from "@/components/layout/wordmark";
+import { Logo } from "@/components/layout/logo";
 import { getAllNewsPosts } from "@/lib/mdx";
 import { sponsors } from "../../../content/sponsors";
 
@@ -47,10 +47,8 @@ function Hero() {
             </Link>
           </div>
         </div>
-        <div className="relative flex items-center justify-center rounded-xl bg-gradient-to-br from-brand-teal-100 via-white to-brand-purple-100 p-10 shadow-sm ring-1 ring-neutral-200">
-          {/* TODO: once public/logo.png exists, swap this Wordmark for
-              <img src="/logo.png" alt="Creek's Girls Lacrosse" /> */}
-          <Wordmark size="xl" />
+        <div className="relative flex items-center justify-center">
+          <Logo variant="crest" height={420} priority />
         </div>
       </div>
     </section>

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Mail } from "lucide-react";
 import { InstagramIcon, FacebookIcon } from "@/components/ui/social-icon";
-import { Wordmark } from "@/components/layout/wordmark";
+import { Logo } from "@/components/layout/logo";
 import { siteConfig } from "@/lib/site-config";
 
 export function SiteFooter() {
@@ -10,7 +10,7 @@ export function SiteFooter() {
     <footer className="mt-24 border-t border-neutral-200 bg-surface-muted">
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-3">
         <div>
-          <Wordmark size="sm" />
+          <Logo variant="wordmark" height={32} />
           <p className="mt-4 max-w-sm text-sm text-ink-muted">
             {siteConfig.description}
           </p>
