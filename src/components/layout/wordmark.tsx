@@ -9,12 +9,13 @@ export function Wordmark({
   size = "md",
 }: {
   className?: string;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
 }) {
   const sizes = {
     sm: { text: "text-lg", tag: "text-[10px]", icon: 28 },
     md: { text: "text-2xl", tag: "text-xs", icon: 36 },
     lg: { text: "text-4xl", tag: "text-sm", icon: 56 },
+    xl: { text: "text-6xl", tag: "text-base", icon: 96 },
   } as const;
   const s = sizes[size];
   return (

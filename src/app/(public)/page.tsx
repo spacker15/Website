@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Calendar, Heart, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Wordmark } from "@/components/layout/wordmark";
 import { getAllNewsPosts } from "@/lib/mdx";
 import { sponsors } from "../../../content/sponsors";
 
@@ -30,8 +31,8 @@ function Hero() {
             <span className="block text-brand-teal-700">Girls Lacrosse</span>
           </h1>
           <p className="mt-5 max-w-md text-lg text-ink-muted">
-            Schedules, rosters, news, and registration — everything our players
-            and families need, in one place. {/* TODO: tagline from coach */}
+            Empowering young women through lacrosse — skills, sportsmanship,
+            and leadership, on the field and beyond.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/news">
@@ -46,13 +47,10 @@ function Hero() {
             </Link>
           </div>
         </div>
-        <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
-          {/* TODO: replace with team/action photo */}
-          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-brand-teal-100 via-white to-brand-purple-100">
-            <p className="px-6 text-center text-sm text-ink-subtle">
-              Team photo coming soon
-            </p>
-          </div>
+        <div className="relative flex items-center justify-center rounded-xl bg-gradient-to-br from-brand-teal-100 via-white to-brand-purple-100 p-10 shadow-sm ring-1 ring-neutral-200">
+          {/* TODO: once public/logo.png exists, swap this Wordmark for
+              <img src="/logo.png" alt="Creek's Girls Lacrosse" /> */}
+          <Wordmark size="xl" />
         </div>
       </div>
     </section>
@@ -148,24 +146,30 @@ function RecentNews({
 }
 
 function SponsorsStrip() {
+  const hasSponsors = sponsors.length > 0;
   return (
     <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
       <div className="rounded-2xl bg-gradient-to-br from-brand-purple-500 to-brand-teal-600 p-10 text-white sm:p-14">
         <h2 className="font-display text-3xl font-bold sm:text-4xl">
-          Thank you to our sponsors
+          {hasSponsors ? "Thank you to our sponsors" : "Sponsor the team"}
         </h2>
         <p className="mt-3 max-w-xl text-white/85">
-          Local supporters make our season possible. Visit the sponsors page to
-          see who&apos;s backing the team — and how your business can too.
+          {hasSponsors
+            ? "Local supporters make our season possible. Visit the sponsors page to see who's backing the team — and how your business can too."
+            : "Help us cover gear, travel, and field time. Sponsorship packages reach an active community of families and fans across the season."}
         </p>
         <div className="mt-6">
           <Link href="/sponsors">
-            <Button variant="secondary" size="lg" className="bg-white text-brand-purple-700 hover:bg-brand-pink-50">
-              See our sponsors →
+            <Button
+              variant="secondary"
+              size="lg"
+              className="bg-white text-brand-purple-700 hover:bg-brand-pink-50"
+            >
+              {hasSponsors ? "See our sponsors →" : "See sponsorship packages →"}
             </Button>
           </Link>
         </div>
-        {sponsors.length > 0 && (
+        {hasSponsors && (
           <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm text-white/85">
             {sponsors.slice(0, 6).map((s) => (
               <li key={s.name}>{s.name}</li>

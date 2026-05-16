@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "About Creek's Girls Lacrosse — our mission, our coaches, and our team.",
+    "About Creek's Girls Lacrosse — empowering young women through the sport of lacrosse.",
 };
 
 export default function AboutPage() {
@@ -18,42 +18,27 @@ export default function AboutPage() {
         Creek&apos;s Girls Lacrosse
       </h1>
 
-      {/* TODO: replace placeholder copy with copy from the coaching staff */}
-      <section className="prose prose-neutral mt-8 max-w-none text-ink-muted">
-        <h2 className="font-display text-2xl font-semibold text-ink">
-          Our mission
-        </h2>
-        <p>
-          We&apos;re a community-driven program built on hard work, sportsmanship,
-          and joy for the game. Our goal is simple: develop confident
-          student-athletes, build life-long friendships, and have fun chasing
-          something bigger than ourselves on the field.
+      <section className="prose prose-neutral mt-8 max-w-none text-ink-muted prose-headings:font-display prose-headings:text-ink prose-strong:text-ink">
+        <p className="lead text-lg">
+          Creek&apos;s Girls Lacrosse is a program dedicated to empowering young
+          women through the sport of lacrosse. We firmly believe in fostering
+          essential lacrosse skills while instilling the values of sportsmanship
+          and leadership — benefiting our players not only on the field but
+          also in their future endeavors.
         </p>
 
-        <h2 className="mt-10 font-display text-2xl font-semibold text-ink">
-          Our team
-        </h2>
         <p>
-          From middle school to varsity, every level of our program shares the
-          same standard — relentless effort, respect for teammates and
-          opponents, and pride in representing Creek&apos;s.
+          Creek&apos;s Girls Lacrosse is open to girls of all skill levels,
+          whether you&apos;re a beginner or an experienced player. Our program
+          provides a supportive and inclusive environment for every participant
+          to learn, grow, and excel.
         </p>
 
-        <h2 className="mt-10 font-display text-2xl font-semibold text-ink">
-          Coaching staff
-        </h2>
         <p>
-          Bios coming soon. Our staff brings years of playing and coaching
-          experience to every practice and game day.
-        </p>
-
-        <h2 className="mt-10 font-display text-2xl font-semibold text-ink">
-          History
-        </h2>
-        <p>
-          The Creek&apos;s Girls Lacrosse program has been growing year over
-          year. Highlights, season recaps, and program milestones will live
-          here.
+          We prioritize not just the game of lacrosse but also the personal
+          development of our players. Through teamwork, respect, and leadership
+          opportunities, we aim to nurture well-rounded individuals who will
+          thrive both in sports and in life.
         </p>
       </section>
 
