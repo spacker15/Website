@@ -10,12 +10,12 @@ export const metadata: Metadata = {
     "Sponsorship opportunities with Creek's Girls Lacrosse — packages, benefits, and how to get involved.",
 };
 
-const tierOrder: Sponsor["tier"][] = ["captain", "attack", "midfield", "ground-ball"];
+const tierOrder: Sponsor["tier"][] = ["hat-trick", "top-shelf", "sauce", "ground-ball"];
 
 const tierAccent: Record<Sponsor["tier"], string> = {
-  captain: "from-brand-purple-500 to-brand-teal-600",
-  attack: "from-brand-pink-500 to-brand-purple-500",
-  midfield: "from-brand-teal-500 to-brand-teal-700",
+  "hat-trick": "from-brand-purple-500 to-brand-teal-600",
+  "top-shelf": "from-brand-pink-500 to-brand-purple-500",
+  sauce: "from-brand-teal-500 to-brand-teal-700",
   "ground-ball": "from-brand-teal-600 to-brand-purple-600",
 };
 

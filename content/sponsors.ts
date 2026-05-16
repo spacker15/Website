@@ -1,4 +1,4 @@
-export type SponsorTier = "captain" | "attack" | "midfield" | "ground-ball";
+export type SponsorTier = "hat-trick" | "top-shelf" | "sauce" | "ground-ball";
 
 export type Sponsor = {
   name: string;
@@ -30,12 +30,11 @@ export type SponsorshipTier = {
  */
 export const sponsorshipTiers: SponsorshipTier[] = [
   {
-    id: "captain",
-    name: "Captain",
+    id: "hat-trick",
+    name: "Hat Trick",
     amount: "$1,500+",
-    tagline: "Lead the way — our top tier with the most visibility.",
+    tagline: "Three goals' worth of impact — our premier tier.",
     benefits: [
-      "Logo on team warm-up shirts or banner at home games",
       "Tall feather flag with your logo displayed at all home games",
       "Featured placement (large logo + link) on the sponsors page",
       "Dedicated post and story on Instagram and Facebook",
@@ -43,10 +42,10 @@ export const sponsorshipTiers: SponsorshipTier[] = [
     ],
   },
   {
-    id: "attack",
-    name: "Attack",
+    id: "top-shelf",
+    name: "Top Shelf",
     amount: "$750",
-    tagline: "Strong visibility on offense across the season.",
+    tagline: "Premium placement, top-corner visibility.",
     benefits: [
       "Logo on the sponsors page with link to your business",
       "Social media shout-out (Instagram + Facebook)",
@@ -54,10 +53,10 @@ export const sponsorshipTiers: SponsorshipTier[] = [
     ],
   },
   {
-    id: "midfield",
-    name: "Midfield",
+    id: "sauce",
+    name: "Sauce",
     amount: "$400",
-    tagline: "Two-way support — show up for the team.",
+    tagline: "Slick support that keeps the team moving.",
     benefits: [
       "Logo on the sponsors page",
       "Social media shout-out",
@@ -67,7 +66,7 @@ export const sponsorshipTiers: SponsorshipTier[] = [
     id: "ground-ball",
     name: "Ground Ball",
     amount: "$150",
-    tagline: "Every possession counts — for families and small businesses chipping in.",
+    tagline: "Every possession counts — small but mighty.",
     benefits: [
       "Name listed on the sponsors page",
       "Thank-you in the season-end newsletter",
