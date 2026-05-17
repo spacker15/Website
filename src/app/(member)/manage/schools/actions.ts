@@ -16,6 +16,7 @@ const schoolSchema = z.object({
     "other",
   ]),
   is_active: z.boolean(),
+  is_high_school: z.boolean(),
   display_order: z.number().int().min(0).max(9999).default(0),
 });
 

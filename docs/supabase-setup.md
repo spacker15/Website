@@ -61,6 +61,12 @@ Then run `supabase/migrations/0007_schools_custom_fields.sql` for schools, custo
 - Adds full address columns to secondary guardian and emergency contact on `registrations`
 - Adds a `custom_field_answers` jsonb column keyed by `field_key`
 
+Then run `supabase/migrations/0008_schools_high_school_flag.sql` to fix the zoned HS dropdown and add missing private high schools:
+
+- Adds `is_high_school` boolean to `schools` so the zoned HS dropdown only shows schools that actually offer HS
+- Backfills existing rows (Cathedral Parish stays K-8, the rest of the seeded private schools are HS-eligible)
+- Seeds Providence School of Jacksonville, Bishop Kenny, Bishop Snyder, Christ's Church Academy, Foundation Academy, University Christian School
+
 ## 2. Set environment variables
 
 ### In Vercel (Production, Preview, Development)
