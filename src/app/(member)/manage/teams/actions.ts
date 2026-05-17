@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { requireRole } from "@/lib/auth";
+import { requireManagesTeam, requireProgramLeader } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 
 const teamSchema = z.object({
@@ -16,7 +16,7 @@ type CreateResult = { ok: true; id: string } | { ok: false; error: string };
 type WriteResult = { ok: true } | { ok: false; error: string };
 
 export async function createTeam(input: z.infer<typeof teamSchema>): Promise<CreateResult> {
-  await requireRole("head_coach");
+  await requireProgramLeader();
   const parsed = teamSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
   const supabase = await createClient();
@@ -39,7 +39,7 @@ export async function createTeam(input: z.infer<typeof teamSchema>): Promise<Cre
 export async function updateTeam(
   input: z.infer<typeof teamSchema> & { id: string },
 ): Promise<WriteResult> {
-  await requireRole("head_coach");
+  await requireManagesTeam(input.id);
   const parsed = teamSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
   const supabase = await createClient();
@@ -60,7 +60,7 @@ export async function updateTeam(
 }
 
 export async function deleteTeam(id: string): Promise<WriteResult> {
-  await requireRole("head_coach");
+  await requireProgramLeader();
   const supabase = await createClient();
   const { error } = await supabase.from("teams").delete().eq("id", id);
   if (error) return { ok: false, error: error.message };

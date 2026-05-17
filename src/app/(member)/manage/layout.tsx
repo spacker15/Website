@@ -1,10 +1,10 @@
-import { requireRole } from "@/lib/auth";
+import { requireProgramLeader } from "@/lib/auth";
 
 export default async function ManageLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  await requireRole("head_coach");
+  await requireProgramLeader();
   return <>{children}</>;
 }
