@@ -107,11 +107,18 @@ export default async function RegistrationManagePage() {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <Link href={`/manage/registration/${w.id}`}>
-                        <Button size="sm" variant="outline">
-                          Edit
-                        </Button>
-                      </Link>
+                      <div className="flex justify-end gap-2">
+                        <Link href={`/manage/registration/${w.id}/submissions`}>
+                          <Button size="sm" variant="outline">
+                            Submissions
+                          </Button>
+                        </Link>
+                        <Link href={`/manage/registration/${w.id}`}>
+                          <Button size="sm" variant="outline">
+                            Edit
+                          </Button>
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 );

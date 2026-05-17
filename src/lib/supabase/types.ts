@@ -83,6 +83,41 @@ export type RegistrationWindow = {
   updated_at: string;
 };
 
+export type RegistrationStatus =
+  | "pending_payment"
+  | "paid"
+  | "approved"
+  | "rejected"
+  | "cancelled";
+
+export type Registration = {
+  id: string;
+  window_id: string;
+  parent_profile_id: string;
+  parent_full_name: string;
+  parent_email: string;
+  parent_phone: string | null;
+  player_first_name: string;
+  player_last_name: string;
+  player_date_of_birth: string | null;
+  player_grade: string | null;
+  player_position: PlayerPosition;
+  player_jersey_pref: string | null;
+  requested_team_id: string | null;
+  notes: string | null;
+  status: RegistrationStatus;
+  fee_cents: number;
+  stripe_session_id: string | null;
+  stripe_payment_intent_id: string | null;
+  paid_at: string | null;
+  approved_at: string | null;
+  approved_by: string | null;
+  rejected_reason: string | null;
+  resulting_player_id: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -214,6 +249,58 @@ export type Database = {
           fee_cents?: number;
           currency?: string;
           is_active?: boolean;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      registrations: {
+        Row: Registration;
+        Insert: {
+          id?: string;
+          window_id: string;
+          parent_profile_id: string;
+          parent_full_name: string;
+          parent_email: string;
+          parent_phone?: string | null;
+          player_first_name: string;
+          player_last_name: string;
+          player_date_of_birth?: string | null;
+          player_grade?: string | null;
+          player_position?: PlayerPosition;
+          player_jersey_pref?: string | null;
+          requested_team_id?: string | null;
+          notes?: string | null;
+          status?: RegistrationStatus;
+          fee_cents: number;
+          stripe_session_id?: string | null;
+          stripe_payment_intent_id?: string | null;
+          paid_at?: string | null;
+          approved_at?: string | null;
+          approved_by?: string | null;
+          rejected_reason?: string | null;
+          resulting_player_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          parent_full_name?: string;
+          parent_phone?: string | null;
+          player_first_name?: string;
+          player_last_name?: string;
+          player_date_of_birth?: string | null;
+          player_grade?: string | null;
+          player_position?: PlayerPosition;
+          player_jersey_pref?: string | null;
+          requested_team_id?: string | null;
+          notes?: string | null;
+          status?: RegistrationStatus;
+          stripe_session_id?: string | null;
+          stripe_payment_intent_id?: string | null;
+          paid_at?: string | null;
+          approved_at?: string | null;
+          approved_by?: string | null;
+          rejected_reason?: string | null;
+          resulting_player_id?: string | null;
           updated_at?: string;
         };
         Relationships: [];

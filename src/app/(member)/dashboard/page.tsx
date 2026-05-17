@@ -27,6 +27,13 @@ export default async function DashboardPage() {
 
   const { data: teams } = teamsQuery ? await teamsQuery : { data: null };
 
+  const { data: myRegistrations } = await supabase
+    .from("registrations")
+    .select("id, window_id, player_first_name, player_last_name, status, fee_cents, created_at")
+    .eq("parent_profile_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(5);
+
   const showManageCard = managesAnyTeam(user);
 
   return (
@@ -67,6 +74,39 @@ export default async function DashboardPage() {
           </Card>
         )}
       </section>
+
+      {myRegistrations && myRegistrations.length > 0 && (
+        <section className="mt-10">
+          <h2 className="font-display text-xl font-semibold text-ink">
+            Your registrations
+          </h2>
+          <ul className="mt-3 divide-y divide-neutral-200 rounded-lg border border-neutral-200 bg-white">
+            {myRegistrations.map((r) => (
+              <li
+                key={r.id}
+                className="flex items-center justify-between gap-4 px-4 py-3"
+              >
+                <div>
+                  <p className="font-medium text-ink">
+                    {r.player_first_name} {r.player_last_name}
+                  </p>
+                  <p className="text-xs text-ink-subtle">
+                    Submitted{" "}
+                    {new Date(r.created_at).toLocaleDateString(undefined, {
+                      month: "short",
+                      day: "numeric",
+                    })}{" "}
+                    · ${(r.fee_cents / 100).toFixed(2)}
+                  </p>
+                </div>
+                <span className="rounded-full bg-surface-muted px-2 py-0.5 text-xs font-medium capitalize text-ink-muted">
+                  {r.status.replace("_", " ")}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {teams && teams.length > 0 && (
         <section className="mt-10">
