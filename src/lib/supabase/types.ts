@@ -168,6 +168,7 @@ export type School = {
   name: string;
   kind: SchoolKind;
   is_active: boolean;
+  is_high_school: boolean;
   display_order: number;
   created_at: string;
   updated_at: string;
@@ -467,6 +468,7 @@ export type Database = {
           name: string;
           kind: SchoolKind;
           is_active?: boolean;
+          is_high_school?: boolean;
           display_order?: number;
           created_at?: string;
           updated_at?: string;
@@ -475,6 +477,7 @@ export type Database = {
           name?: string;
           kind?: SchoolKind;
           is_active?: boolean;
+          is_high_school?: boolean;
           display_order?: number;
           updated_at?: string;
         };

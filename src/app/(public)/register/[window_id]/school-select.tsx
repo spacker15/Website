@@ -38,7 +38,7 @@ export function SchoolSelect({
   helpText?: string;
 }) {
   const filtered = highSchoolOnly
-    ? schools.filter((s) => s.kind === "public_high" || s.kind === "private")
+    ? schools.filter((s) => s.is_high_school)
     : schools;
 
   const isOther = value === "__other__";

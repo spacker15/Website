@@ -14,6 +14,7 @@ type SchoolDefaults = {
   name?: string;
   kind?: SchoolKind;
   is_active?: boolean;
+  is_high_school?: boolean;
   display_order?: number;
 };
 
@@ -41,6 +42,7 @@ export function SchoolForm({ defaults }: { defaults?: SchoolDefaults }) {
       name: String(fd.get("name") ?? "").trim(),
       kind: String(fd.get("kind") ?? "public_high") as SchoolKind,
       is_active: fd.get("is_active") === "on",
+      is_high_school: fd.get("is_high_school") === "on",
       display_order: Number(fd.get("display_order") ?? 0),
     };
 
@@ -118,15 +120,26 @@ export function SchoolForm({ defaults }: { defaults?: SchoolDefaults }) {
         </p>
       </Field>
 
-      <label className="flex items-center gap-2 text-sm">
-        <input
-          type="checkbox"
-          name="is_active"
-          defaultChecked={defaults?.is_active ?? true}
-          className="h-4 w-4 rounded border-neutral-300"
-        />
-        <span>Active (shown in registration dropdowns)</span>
-      </label>
+      <div className="space-y-2">
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            name="is_active"
+            defaultChecked={defaults?.is_active ?? true}
+            className="h-4 w-4 rounded border-neutral-300"
+          />
+          <span>Active (shown in registration dropdowns)</span>
+        </label>
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            name="is_high_school"
+            defaultChecked={defaults?.is_high_school ?? false}
+            className="h-4 w-4 rounded border-neutral-300"
+          />
+          <span>Offers high school grades (eligible for the &quot;Zoned high school&quot; dropdown)</span>
+        </label>
+      </div>
 
       {error && <FieldError>{error}</FieldError>}
 

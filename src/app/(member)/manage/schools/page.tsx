@@ -55,6 +55,7 @@ export default async function SchoolsPage() {
               <tr>
                 <th className="px-4 py-2">Name</th>
                 <th className="px-4 py-2">Kind</th>
+                <th className="px-4 py-2">HS?</th>
                 <th className="px-4 py-2">Order</th>
                 <th className="px-4 py-2">Active</th>
                 <th className="px-4 py-2 text-right">Actions</th>
@@ -66,6 +67,9 @@ export default async function SchoolsPage() {
                   <td className="px-4 py-3 font-medium text-ink">{s.name}</td>
                   <td className="px-4 py-3 text-ink-muted">
                     {KIND_LABELS[s.kind]}
+                  </td>
+                  <td className="px-4 py-3 text-ink-muted">
+                    {s.is_high_school ? "✓" : "—"}
                   </td>
                   <td className="px-4 py-3 text-ink-muted">{s.display_order}</td>
                   <td className="px-4 py-3">
