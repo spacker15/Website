@@ -53,6 +53,14 @@ Then run `supabase/migrations/0006_registration_v2.sql` for the full registratio
 - Seeds three editable starter waivers: Liability, Photo and video release, Code of conduct
 - Parents can read active waivers and sign on their own registration; program leaders can manage everything
 
+Then run `supabase/migrations/0007_schools_custom_fields.sql` for schools, custom fields, and addresses on everyone:
+
+- New `schools` table seeded with St. Johns County, FL public and private schools; PL manages via `/manage/schools`
+- New `registration_fields` table for PL-defined custom questions (text / textarea / number / select / checkbox); PL manages via `/manage/registration-fields`
+- Adds `current_school_id` + `current_school_other` and `zoned_high_school_id` + `zoned_high_school_other` to `registrations`
+- Adds full address columns to secondary guardian and emergency contact on `registrations`
+- Adds a `custom_field_answers` jsonb column keyed by `field_key`
+
 ## 2. Set environment variables
 
 ### In Vercel (Production, Preview, Development)

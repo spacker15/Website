@@ -107,14 +107,28 @@ export type Registration = {
   secondary_guardian_email: string | null;
   secondary_guardian_phone: string | null;
   secondary_guardian_relationship: string | null;
+  secondary_guardian_address_line1: string | null;
+  secondary_guardian_address_line2: string | null;
+  secondary_guardian_city: string | null;
+  secondary_guardian_state: string | null;
+  secondary_guardian_zip: string | null;
   emergency_contact_name: string | null;
   emergency_contact_phone: string | null;
   emergency_contact_relationship: string | null;
+  emergency_contact_address_line1: string | null;
+  emergency_contact_address_line2: string | null;
+  emergency_contact_city: string | null;
+  emergency_contact_state: string | null;
+  emergency_contact_zip: string | null;
   player_first_name: string;
   player_last_name: string;
   player_date_of_birth: string | null;
   player_grade: string | null;
   player_school: string | null;
+  current_school_id: string | null;
+  current_school_other: string | null;
+  zoned_high_school_id: string | null;
+  zoned_high_school_other: string | null;
   player_position: PlayerPosition;
   player_usa_lacrosse_member: boolean;
   player_usa_lacrosse_number: string | null;
@@ -127,6 +141,7 @@ export type Registration = {
   player_medical_notes: string | null;
   requested_team_id: string | null;
   notes: string | null;
+  custom_field_answers: Record<string, string | number | boolean>;
   status: RegistrationStatus;
   fee_cents: number;
   stripe_session_id: string | null;
@@ -136,6 +151,45 @@ export type Registration = {
   approved_by: string | null;
   rejected_reason: string | null;
   resulting_player_id: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type SchoolKind =
+  | "public_elementary"
+  | "public_middle"
+  | "public_k8"
+  | "public_high"
+  | "private"
+  | "other";
+
+export type School = {
+  id: string;
+  name: string;
+  kind: SchoolKind;
+  is_active: boolean;
+  display_order: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type RegistrationFieldKind =
+  | "text"
+  | "textarea"
+  | "number"
+  | "select"
+  | "checkbox";
+
+export type RegistrationField = {
+  id: string;
+  label: string;
+  field_key: string;
+  help_text: string | null;
+  kind: RegistrationFieldKind;
+  options: string[] | null;
+  is_required: boolean;
+  is_active: boolean;
+  display_order: number;
   created_at: string;
   updated_at: string;
 };
@@ -317,14 +371,28 @@ export type Database = {
           secondary_guardian_email?: string | null;
           secondary_guardian_phone?: string | null;
           secondary_guardian_relationship?: string | null;
+          secondary_guardian_address_line1?: string | null;
+          secondary_guardian_address_line2?: string | null;
+          secondary_guardian_city?: string | null;
+          secondary_guardian_state?: string | null;
+          secondary_guardian_zip?: string | null;
           emergency_contact_name?: string | null;
           emergency_contact_phone?: string | null;
           emergency_contact_relationship?: string | null;
+          emergency_contact_address_line1?: string | null;
+          emergency_contact_address_line2?: string | null;
+          emergency_contact_city?: string | null;
+          emergency_contact_state?: string | null;
+          emergency_contact_zip?: string | null;
           player_first_name: string;
           player_last_name: string;
           player_date_of_birth?: string | null;
           player_grade?: string | null;
           player_school?: string | null;
+          current_school_id?: string | null;
+          current_school_other?: string | null;
+          zoned_high_school_id?: string | null;
+          zoned_high_school_other?: string | null;
           player_position?: PlayerPosition;
           player_usa_lacrosse_member?: boolean;
           player_usa_lacrosse_number?: string | null;
@@ -337,6 +405,7 @@ export type Database = {
           player_medical_notes?: string | null;
           requested_team_id?: string | null;
           notes?: string | null;
+          custom_field_answers?: Record<string, string | number | boolean>;
           status?: RegistrationStatus;
           fee_cents: number;
           stripe_session_id?: string | null;
@@ -389,6 +458,54 @@ export type Database = {
           signed_at?: string;
         };
         Update: Record<string, never>;
+        Relationships: [];
+      };
+      schools: {
+        Row: School;
+        Insert: {
+          id?: string;
+          name: string;
+          kind: SchoolKind;
+          is_active?: boolean;
+          display_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          name?: string;
+          kind?: SchoolKind;
+          is_active?: boolean;
+          display_order?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      registration_fields: {
+        Row: RegistrationField;
+        Insert: {
+          id?: string;
+          label: string;
+          field_key: string;
+          help_text?: string | null;
+          kind: RegistrationFieldKind;
+          options?: string[] | null;
+          is_required?: boolean;
+          is_active?: boolean;
+          display_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          label?: string;
+          field_key?: string;
+          help_text?: string | null;
+          kind?: RegistrationFieldKind;
+          options?: string[] | null;
+          is_required?: boolean;
+          is_active?: boolean;
+          display_order?: number;
+          updated_at?: string;
+        };
         Relationships: [];
       };
     };

@@ -7,6 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Field, FieldError } from "@/components/ui/field";
 import { submitRegistration } from "./actions";
+import { AddressBlock, type Address, emptyAddress } from "./address-block";
+import { SchoolSelect } from "./school-select";
+import { CustomFieldsBlock, type CustomAnswers } from "./custom-fields";
+import type { RegistrationField, School } from "@/lib/supabase/types";
 
 type Team = { id: string; name: string; season: string | null };
 
@@ -36,25 +40,8 @@ const POSITIONS = [
 const SIZES = ["YS", "YM", "YL", "AS", "AM", "AL", "AXL", "AXXL"] as const;
 
 const RELATIONSHIPS = [
-  "Mother",
-  "Father",
-  "Stepmother",
-  "Stepfather",
-  "Guardian",
-  "Grandparent",
-  "Aunt",
-  "Uncle",
-  "Sibling",
-  "Other",
-] as const;
-
-const US_STATES = [
-  "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
-  "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
-  "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
-  "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
-  "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY",
-  "DC",
+  "Mother", "Father", "Stepmother", "Stepfather", "Guardian",
+  "Grandparent", "Aunt", "Uncle", "Sibling", "Other",
 ] as const;
 
 function computeAge(dobString: string): number | null {
@@ -72,24 +59,69 @@ export function RegistrationForm({
   windowId,
   teams,
   waivers,
+  schools,
+  customFields,
   parentDefaults,
 }: {
   windowId: string;
   teams: Team[];
   waivers: Waiver[];
+  schools: School[];
+  customFields: RegistrationField[];
   parentDefaults: ParentDefaults;
 }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+
+  // Primary guardian address (we control it as state so "same as primary"
+  // checkboxes on the other sections can mirror it).
+  const [primaryAddress, setPrimaryAddress] = useState<Address>({
+    line1: "",
+    line2: "",
+    city: "",
+    state: "",
+    zip: "",
+  });
+
+  // Secondary guardian
+  const [secondaryAddress, setSecondaryAddress] = useState<Address>({ ...emptyAddress });
+  const [secondarySameAsPrimary, setSecondarySameAsPrimary] = useState(false);
+
+  // Emergency contact
+  const [emergencyAddress, setEmergencyAddress] = useState<Address>({ ...emptyAddress });
+  const [emergencySameAsPrimary, setEmergencySameAsPrimary] = useState(true);
+
+  // Schools
+  const [currentSchoolId, setCurrentSchoolId] = useState("");
+  const [currentSchoolOther, setCurrentSchoolOther] = useState("");
+  const [zonedSchoolId, setZonedSchoolId] = useState("");
+  const [zonedSchoolOther, setZonedSchoolOther] = useState("");
+
+  // Player misc
   const [dob, setDob] = useState("");
   const [usaMember, setUsaMember] = useState(false);
-  const [signedWaivers, setSignedWaivers] = useState<Record<string, boolean>>(
-    {},
-  );
-  const age = useMemo(() => computeAge(dob), [dob]);
 
+  // Custom fields
+  const [customAnswers, setCustomAnswers] = useState<CustomAnswers>({});
+
+  // Waivers
+  const [signedWaivers, setSignedWaivers] = useState<Record<string, boolean>>({});
+
+  const age = useMemo(() => computeAge(dob), [dob]);
   const requiredWaivers = waivers.filter((w) => w.is_required);
   const missingSignatures = requiredWaivers.filter((w) => !signedWaivers[w.id]);
+
+  // Resolve which address to actually send for each secondary section.
+  const effectiveSecondaryAddress = secondarySameAsPrimary
+    ? primaryAddress
+    : secondaryAddress;
+  const effectiveEmergencyAddress = emergencySameAsPrimary
+    ? primaryAddress
+    : emergencyAddress;
+
+  function setCustomAnswer(key: string, value: string | number | boolean) {
+    setCustomAnswers((prev) => ({ ...prev, [key]: value }));
+  }
 
   function toggleWaiver(id: string, checked: boolean) {
     setSignedWaivers((s) => ({ ...s, [id]: checked }));
@@ -104,9 +136,18 @@ export function RegistrationForm({
       return;
     }
 
+    // Validate "Not listed" schools have a name
+    if (currentSchoolId === "__other__" && !currentSchoolOther.trim()) {
+      setError("Type your current school name.");
+      return;
+    }
+    if (zonedSchoolId === "__other__" && !zonedSchoolOther.trim()) {
+      setError("Type your zoned high school name.");
+      return;
+    }
+
     const fd = new FormData(e.currentTarget);
     const yearsRaw = String(fd.get("player_years_experience") ?? "").trim();
-
     const signatures = waivers
       .filter((w) => signedWaivers[w.id])
       .map((w) => ({
@@ -122,39 +163,42 @@ export function RegistrationForm({
         parent_full_name: String(fd.get("parent_full_name") ?? "").trim(),
         parent_phone: String(fd.get("parent_phone") ?? "").trim(),
         parent_relationship: String(fd.get("parent_relationship") ?? "").trim(),
-        parent_address_line1: String(fd.get("parent_address_line1") ?? "").trim(),
-        parent_address_line2: String(fd.get("parent_address_line2") ?? "").trim(),
-        parent_city: String(fd.get("parent_city") ?? "").trim(),
-        parent_state: String(fd.get("parent_state") ?? "").trim(),
-        parent_zip: String(fd.get("parent_zip") ?? "").trim(),
-        secondary_guardian_full_name: String(
-          fd.get("secondary_guardian_full_name") ?? "",
-        ).trim(),
-        secondary_guardian_email: String(
-          fd.get("secondary_guardian_email") ?? "",
-        ).trim(),
-        secondary_guardian_phone: String(
-          fd.get("secondary_guardian_phone") ?? "",
-        ).trim(),
-        secondary_guardian_relationship: String(
-          fd.get("secondary_guardian_relationship") ?? "",
-        ).trim(),
+        parent_address_line1: primaryAddress.line1.trim(),
+        parent_address_line2: primaryAddress.line2.trim(),
+        parent_city: primaryAddress.city.trim(),
+        parent_state: primaryAddress.state.trim(),
+        parent_zip: primaryAddress.zip.trim(),
+        secondary_guardian_full_name: String(fd.get("secondary_guardian_full_name") ?? "").trim(),
+        secondary_guardian_email: String(fd.get("secondary_guardian_email") ?? "").trim(),
+        secondary_guardian_phone: String(fd.get("secondary_guardian_phone") ?? "").trim(),
+        secondary_guardian_relationship: String(fd.get("secondary_guardian_relationship") ?? "").trim(),
+        secondary_guardian_address: {
+          line1: effectiveSecondaryAddress.line1.trim(),
+          line2: effectiveSecondaryAddress.line2.trim(),
+          city: effectiveSecondaryAddress.city.trim(),
+          state: effectiveSecondaryAddress.state.trim(),
+          zip: effectiveSecondaryAddress.zip.trim(),
+        },
         emergency_contact_name: String(fd.get("emergency_contact_name") ?? "").trim(),
         emergency_contact_phone: String(fd.get("emergency_contact_phone") ?? "").trim(),
-        emergency_contact_relationship: String(
-          fd.get("emergency_contact_relationship") ?? "",
-        ).trim(),
+        emergency_contact_relationship: String(fd.get("emergency_contact_relationship") ?? "").trim(),
+        emergency_contact_address: {
+          line1: effectiveEmergencyAddress.line1.trim(),
+          line2: effectiveEmergencyAddress.line2.trim(),
+          city: effectiveEmergencyAddress.city.trim(),
+          state: effectiveEmergencyAddress.state.trim(),
+          zip: effectiveEmergencyAddress.zip.trim(),
+        },
         player_first_name: String(fd.get("player_first_name") ?? "").trim(),
         player_last_name: String(fd.get("player_last_name") ?? "").trim(),
-        player_date_of_birth: String(fd.get("player_date_of_birth") ?? ""),
+        player_date_of_birth: dob,
         player_grade: String(fd.get("player_grade") ?? "").trim(),
-        player_school: String(fd.get("player_school") ?? "").trim(),
+        current_school_id: currentSchoolId === "__other__" ? "" : currentSchoolId,
+        current_school_other: currentSchoolId === "__other__" ? currentSchoolOther.trim() : "",
+        zoned_high_school_id: zonedSchoolId === "__other__" ? "" : zonedSchoolId,
+        zoned_high_school_other: zonedSchoolId === "__other__" ? zonedSchoolOther.trim() : "",
         player_position: String(fd.get("player_position") ?? "unspecified") as
-          | "unspecified"
-          | "attack"
-          | "midfield"
-          | "defense"
-          | "goalie",
+          | "unspecified" | "attack" | "midfield" | "defense" | "goalie",
         player_usa_lacrosse_member: usaMember,
         player_usa_lacrosse_number: usaMember
           ? String(fd.get("player_usa_lacrosse_number") ?? "").trim()
@@ -168,6 +212,7 @@ export function RegistrationForm({
         player_medical_notes: String(fd.get("player_medical_notes") ?? "").trim(),
         requested_team_id: String(fd.get("requested_team_id") ?? "") || null,
         notes: String(fd.get("notes") ?? "").trim(),
+        custom_field_answers: customAnswers,
         signed_by_name: String(fd.get("signed_by_name") ?? "").trim(),
         waiver_signatures: signatures,
       });
@@ -229,69 +274,17 @@ export function RegistrationForm({
               Choose one…
             </option>
             {RELATIONSHIPS.map((r) => (
-              <option key={r} value={r}>
-                {r}
-              </option>
+              <option key={r} value={r}>{r}</option>
             ))}
           </select>
         </Field>
 
-        <Field>
-          <Label htmlFor="parent_address_line1">Street address</Label>
-          <Input
-            id="parent_address_line1"
-            name="parent_address_line1"
-            required
-            maxLength={200}
-            placeholder="123 Main St"
-          />
-        </Field>
-        <Field>
-          <Label htmlFor="parent_address_line2">Apt / Suite (optional)</Label>
-          <Input
-            id="parent_address_line2"
-            name="parent_address_line2"
-            maxLength={200}
-          />
-        </Field>
-
-        <div className="grid gap-5 sm:grid-cols-3">
-          <Field className="sm:col-span-2">
-            <Label htmlFor="parent_city">City</Label>
-            <Input id="parent_city" name="parent_city" required maxLength={100} />
-          </Field>
-          <Field>
-            <Label htmlFor="parent_state">State</Label>
-            <select
-              id="parent_state"
-              name="parent_state"
-              required
-              defaultValue=""
-              className="block w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm"
-            >
-              <option value="" disabled>
-                —
-              </option>
-              {US_STATES.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-          </Field>
-        </div>
-        <Field>
-          <Label htmlFor="parent_zip">ZIP</Label>
-          <Input
-            id="parent_zip"
-            name="parent_zip"
-            required
-            maxLength={20}
-            inputMode="numeric"
-            placeholder="12345"
-            className="sm:max-w-[160px]"
-          />
-        </Field>
+        <AddressBlock
+          idPrefix="parent_address"
+          value={primaryAddress}
+          onChange={setPrimaryAddress}
+          required
+        />
       </FormSection>
 
       <FormSection
@@ -317,9 +310,7 @@ export function RegistrationForm({
             >
               <option value="">—</option>
               {RELATIONSHIPS.map((r) => (
-                <option key={r} value={r}>
-                  {r}
-                </option>
+                <option key={r} value={r}>{r}</option>
               ))}
             </select>
           </Field>
@@ -344,6 +335,18 @@ export function RegistrationForm({
             />
           </Field>
         </div>
+
+        <SameAsPrimaryToggle
+          checked={secondarySameAsPrimary}
+          onChange={setSecondarySameAsPrimary}
+          label="Address is the same as primary guardian"
+        />
+        <AddressBlock
+          idPrefix="secondary_address"
+          value={secondarySameAsPrimary ? primaryAddress : secondaryAddress}
+          onChange={setSecondaryAddress}
+          disabled={secondarySameAsPrimary}
+        />
       </FormSection>
 
       <FormSection
@@ -379,38 +382,36 @@ export function RegistrationForm({
               defaultValue=""
               className="block w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm"
             >
-              <option value="" disabled>
-                Choose one…
-              </option>
+              <option value="" disabled>Choose one…</option>
               {RELATIONSHIPS.map((r) => (
-                <option key={r} value={r}>
-                  {r}
-                </option>
+                <option key={r} value={r}>{r}</option>
               ))}
             </select>
           </Field>
         </div>
+
+        <SameAsPrimaryToggle
+          checked={emergencySameAsPrimary}
+          onChange={setEmergencySameAsPrimary}
+          label="Address is the same as primary guardian"
+        />
+        <AddressBlock
+          idPrefix="emergency_address"
+          value={emergencySameAsPrimary ? primaryAddress : emergencyAddress}
+          onChange={setEmergencyAddress}
+          disabled={emergencySameAsPrimary}
+        />
       </FormSection>
 
       <FormSection title="Player">
         <div className="grid gap-5 sm:grid-cols-2">
           <Field>
             <Label htmlFor="player_first_name">First name</Label>
-            <Input
-              id="player_first_name"
-              name="player_first_name"
-              required
-              maxLength={80}
-            />
+            <Input id="player_first_name" name="player_first_name" required maxLength={80} />
           </Field>
           <Field>
             <Label htmlFor="player_last_name">Last name</Label>
-            <Input
-              id="player_last_name"
-              name="player_last_name"
-              required
-              maxLength={80}
-            />
+            <Input id="player_last_name" name="player_last_name" required maxLength={80} />
           </Field>
         </div>
 
@@ -441,15 +442,29 @@ export function RegistrationForm({
           </Field>
         </div>
 
-        <Field>
-          <Label htmlFor="player_school">School</Label>
-          <Input
-            id="player_school"
-            name="player_school"
-            maxLength={200}
-            placeholder="Cherry Creek High School"
-          />
-        </Field>
+        <SchoolSelect
+          idPrefix="current_school"
+          label="Current school"
+          schools={schools}
+          value={currentSchoolId}
+          otherValue={currentSchoolOther}
+          onChange={setCurrentSchoolId}
+          onOtherChange={setCurrentSchoolOther}
+          required
+        />
+
+        <SchoolSelect
+          idPrefix="zoned_high_school"
+          label="Zoned high school"
+          schools={schools}
+          value={zonedSchoolId}
+          otherValue={zonedSchoolOther}
+          onChange={setZonedSchoolId}
+          onOtherChange={setZonedSchoolOther}
+          highSchoolOnly
+          required
+          helpText="The public or private high school the player is zoned for."
+        />
 
         <div className="space-y-3 rounded-lg border border-neutral-200 p-4">
           <label className="flex items-center gap-2 text-sm">
@@ -465,9 +480,7 @@ export function RegistrationForm({
           </label>
           {usaMember && (
             <Field>
-              <Label htmlFor="player_usa_lacrosse_number">
-                USA Lacrosse member number
-              </Label>
+              <Label htmlFor="player_usa_lacrosse_number">USA Lacrosse member number</Label>
               <Input
                 id="player_usa_lacrosse_number"
                 name="player_usa_lacrosse_number"
@@ -487,45 +500,28 @@ export function RegistrationForm({
             className="block w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm"
           >
             {POSITIONS.map((p) => (
-              <option key={p.value} value={p.value}>
-                {p.label}
-              </option>
+              <option key={p.value} value={p.value}>{p.label}</option>
             ))}
           </select>
         </Field>
 
         <div>
-          <p className="text-sm font-medium text-ink">
-            Jersey number preferences
-          </p>
+          <p className="text-sm font-medium text-ink">Jersey number preferences</p>
           <p className="text-xs text-ink-subtle">
             Top 3 choices in order of preference (optional).
           </p>
           <div className="mt-2 grid gap-3 sm:grid-cols-3">
             <Field>
               <Label htmlFor="player_jersey_pref_1">1st choice</Label>
-              <Input
-                id="player_jersey_pref_1"
-                name="player_jersey_pref_1"
-                maxLength={10}
-                placeholder="7"
-              />
+              <Input id="player_jersey_pref_1" name="player_jersey_pref_1" maxLength={10} placeholder="7" />
             </Field>
             <Field>
               <Label htmlFor="player_jersey_pref_2">2nd choice</Label>
-              <Input
-                id="player_jersey_pref_2"
-                name="player_jersey_pref_2"
-                maxLength={10}
-              />
+              <Input id="player_jersey_pref_2" name="player_jersey_pref_2" maxLength={10} />
             </Field>
             <Field>
               <Label htmlFor="player_jersey_pref_3">3rd choice</Label>
-              <Input
-                id="player_jersey_pref_3"
-                name="player_jersey_pref_3"
-                maxLength={10}
-              />
+              <Input id="player_jersey_pref_3" name="player_jersey_pref_3" maxLength={10} />
             </Field>
           </div>
         </div>
@@ -540,13 +536,9 @@ export function RegistrationForm({
               defaultValue=""
               className="block w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm"
             >
-              <option value="" disabled>
-                Choose…
-              </option>
+              <option value="" disabled>Choose…</option>
               {SIZES.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
+                <option key={s} value={s}>{s}</option>
               ))}
             </select>
           </Field>
@@ -559,13 +551,9 @@ export function RegistrationForm({
               defaultValue=""
               className="block w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm"
             >
-              <option value="" disabled>
-                Choose…
-              </option>
+              <option value="" disabled>Choose…</option>
               {SIZES.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
+                <option key={s} value={s}>{s}</option>
               ))}
             </select>
           </Field>
@@ -619,15 +607,22 @@ export function RegistrationForm({
 
         <Field>
           <Label htmlFor="notes">Notes for the coaches (optional)</Label>
-          <Textarea
-            id="notes"
-            name="notes"
-            rows={3}
-            maxLength={2000}
-            placeholder="Anything else we should know."
-          />
+          <Textarea id="notes" name="notes" rows={3} maxLength={2000} />
         </Field>
       </FormSection>
+
+      {customFields.length > 0 && (
+        <FormSection
+          title="Additional info"
+          subtitle="A few extra questions from the program."
+        >
+          <CustomFieldsBlock
+            fields={customFields}
+            answers={customAnswers}
+            onChange={setCustomAnswer}
+          />
+        </FormSection>
+      )}
 
       {waivers.length > 0 && (
         <FormSection
@@ -636,10 +631,7 @@ export function RegistrationForm({
         >
           <div className="space-y-4">
             {waivers.map((w) => (
-              <div
-                key={w.id}
-                className="rounded-lg border border-neutral-200 bg-white"
-              >
+              <div key={w.id} className="rounded-lg border border-neutral-200 bg-white">
                 <div className="border-b border-neutral-200 px-4 py-3">
                   <p className="font-display text-sm font-semibold text-ink">
                     {w.title}
@@ -673,9 +665,7 @@ export function RegistrationForm({
           </div>
 
           <Field>
-            <Label htmlFor="signed_by_name">
-              Type your full legal name to sign
-            </Label>
+            <Label htmlFor="signed_by_name">Type your full legal name to sign</Label>
             <Input
               id="signed_by_name"
               name="signed_by_name"
@@ -705,6 +695,28 @@ export function RegistrationForm({
   );
 }
 
+function SameAsPrimaryToggle({
+  checked,
+  onChange,
+  label,
+}: {
+  checked: boolean;
+  onChange: (next: boolean) => void;
+  label: string;
+}) {
+  return (
+    <label className="flex items-center gap-2 rounded-md bg-surface-muted px-3 py-2 text-sm">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        className="h-4 w-4 rounded border-neutral-300"
+      />
+      <span>{label}</span>
+    </label>
+  );
+}
+
 function FormSection({
   title,
   subtitle,
@@ -718,9 +730,7 @@ function FormSection({
     <section className="space-y-5">
       <div>
         <h2 className="font-display text-lg font-semibold text-ink">{title}</h2>
-        {subtitle && (
-          <p className="mt-1 text-sm text-ink-muted">{subtitle}</p>
-        )}
+        {subtitle && <p className="mt-1 text-sm text-ink-muted">{subtitle}</p>}
       </div>
       {children}
     </section>
