@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +23,12 @@ export function LoginForm({ next }: { next?: string }) {
     const fd = new FormData(e.currentTarget);
     const email = String(fd.get("email") ?? "");
     const password = String(fd.get("password") ?? "");
+    const confirmPassword = String(fd.get("confirmPassword") ?? "");
+
+    if (mode === "password-signup" && password !== confirmPassword) {
+      setError("Passwords don't match");
+      return;
+    }
 
     startTransition(async () => {
       if (mode === "magic") {
@@ -33,8 +40,10 @@ export function LoginForm({ next }: { next?: string }) {
         router.replace(`/login?sent=1${next ? `&next=${encodeURIComponent(next)}` : ""}`);
         return;
       }
-      const action = mode === "password-signin" ? signInWithPassword : signUpWithPassword;
-      const res = await action({ email, password, next });
+      const res =
+        mode === "password-signin"
+          ? await signInWithPassword({ email, password, next })
+          : await signUpWithPassword({ email, password, confirmPassword, next });
       if (!res.ok) {
         setError(res.error);
         return;
@@ -77,6 +86,20 @@ export function LoginForm({ next }: { next?: string }) {
           </Field>
         )}
 
+        {mode === "password-signup" && (
+          <Field>
+            <Label htmlFor="confirmPassword">Confirm password</Label>
+            <Input
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              autoComplete="new-password"
+              required
+              minLength={8}
+            />
+          </Field>
+        )}
+
         {error && <FieldError>{error}</FieldError>}
 
         <Button type="submit" size="lg" className="w-full" disabled={pending}>
@@ -88,6 +111,17 @@ export function LoginForm({ next }: { next?: string }) {
                 ? "Create account"
                 : "Email me a magic link"}
         </Button>
+
+        {mode === "password-signin" && (
+          <p className="text-center text-sm">
+            <Link
+              href="/login/forgot"
+              className="font-medium text-brand-teal-700 hover:underline"
+            >
+              Forgot password?
+            </Link>
+          </p>
+        )}
       </form>
     </>
   );

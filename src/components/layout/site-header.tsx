@@ -35,12 +35,14 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
               >
                 Dashboard
               </Link>
-              <Link
-                href="/logout"
-                className="rounded-md px-3 py-2 text-sm font-medium text-ink-muted hover:bg-surface-muted"
-              >
-                Sign out
-              </Link>
+              <form action="/logout" method="POST">
+                <button
+                  type="submit"
+                  className="rounded-md px-3 py-2 text-sm font-medium text-ink-muted hover:bg-surface-muted"
+                >
+                  Sign out
+                </button>
+              </form>
             </>
           ) : (
             <Link
@@ -95,13 +97,15 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
               >
                 Dashboard
               </Link>
-              <Link
-                href="/logout"
-                onClick={() => setOpen(false)}
-                className="rounded-md px-3 py-3 text-base font-medium text-ink-muted"
-              >
-                Sign out
-              </Link>
+              <form action="/logout" method="POST">
+                <button
+                  type="submit"
+                  onClick={() => setOpen(false)}
+                  className="w-full rounded-md px-3 py-3 text-left text-base font-medium text-ink-muted"
+                >
+                  Sign out
+                </button>
+              </form>
             </>
           ) : (
             <Link
