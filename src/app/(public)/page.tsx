@@ -4,17 +4,109 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/layout/logo";
 import { getAllNewsPosts } from "@/lib/mdx";
 import { sponsors } from "@/lib/sponsors";
+import { createClient } from "@/lib/supabase/server";
+import type { RegistrationWindow } from "@/lib/supabase/types";
+
+async function getCurrentRegistrationWindow(): Promise<
+  { window: RegistrationWindow; isOpen: boolean } | null
+> {
+  try {
+    const supabase = await createClient();
+    const nowIso = new Date().toISOString();
+    // Prefer a currently-open window; if none, fall back to the next upcoming one.
+    const { data: open } = await supabase
+      .from("registration_windows")
+      .select("*")
+      .eq("is_active", true)
+      .lte("opens_at", nowIso)
+      .gte("closes_at", nowIso)
+      .order("closes_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    if (open) return { window: open, isOpen: true };
+
+    const { data: upcoming } = await supabase
+      .from("registration_windows")
+      .select("*")
+      .eq("is_active", true)
+      .gt("opens_at", nowIso)
+      .order("opens_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    return upcoming ? { window: upcoming, isOpen: false } : null;
+  } catch {
+    return null;
+  }
+}
 
 export default async function HomePage() {
-  const posts = (await getAllNewsPosts()).slice(0, 3);
+  const [posts, registration] = await Promise.all([
+    getAllNewsPosts().then((p) => p.slice(0, 3)),
+    getCurrentRegistrationWindow(),
+  ]);
 
   return (
     <>
+      {registration && (
+        <RegistrationBanner
+          window={registration.window}
+          isOpen={registration.isOpen}
+        />
+      )}
       <Hero />
       <Highlights />
       <RecentNews posts={posts} />
       <SponsorsStrip />
     </>
+  );
+}
+
+function RegistrationBanner({
+  window,
+  isOpen,
+}: {
+  window: RegistrationWindow;
+  isOpen: boolean;
+}) {
+  const fee = `$${(window.fee_cents / 100).toFixed(0)}`;
+  const fmt = (iso: string) =>
+    new Date(iso).toLocaleDateString(undefined, {
+      month: "long",
+      day: "numeric",
+    });
+
+  return (
+    <div className="border-b border-brand-pink-100 bg-brand-pink-50">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-3 px-4 py-3 text-sm sm:px-6">
+        {isOpen ? (
+          <>
+            <span className="rounded-full bg-brand-pink-600 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-white">
+              Open
+            </span>
+            <p className="text-ink">
+              <span className="font-semibold">{window.name}</span> registration
+              is open — {fee}. Closes {fmt(window.closes_at)}.
+            </p>
+            <Link
+              href="/register"
+              className="font-medium text-brand-pink-700 hover:underline"
+            >
+              Register now →
+            </Link>
+          </>
+        ) : (
+          <>
+            <span className="rounded-full bg-brand-purple-600 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-white">
+              Upcoming
+            </span>
+            <p className="text-ink">
+              <span className="font-semibold">{window.name}</span> registration
+              opens {fmt(window.opens_at)} — {fee}.
+            </p>
+          </>
+        )}
+      </div>
+    </div>
   );
 }
 

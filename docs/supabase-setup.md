@@ -33,6 +33,12 @@ Together they:
 - Add helper functions `is_program_leader()`, `manages_team(team_id)`, `manages_player(player_id)`
 - Tighten RLS so team coaches can manage just their own team's roster, while program leaders manage everything
 
+Then run `supabase/migrations/0004_registration_windows.sql` for the registration foundation:
+
+- New table `registration_windows` (name, opens_at, closes_at, fee_cents, is_active)
+- Public can read active windows (used by the homepage banner)
+- Only program leaders can create / edit / delete windows
+
 ## 2. Set environment variables
 
 ### In Vercel (Production, Preview, Development)

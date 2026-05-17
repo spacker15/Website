@@ -21,6 +21,7 @@ export default async function MemberLayout({
             <Tab href="/dashboard">Dashboard</Tab>
             <Tab href="/profile">Profile</Tab>
             {managesAnyTeam(user) && <Tab href="/manage/teams">Manage teams</Tab>}
+            {isProgramLeader(user) && <Tab href="/manage/registration">Registration</Tab>}
             {isProgramLeader(user) && <Tab href="/manage/people">People</Tab>}
           </nav>
           <span className="ml-auto text-xs text-ink-muted">

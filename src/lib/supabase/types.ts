@@ -70,6 +70,19 @@ export type PlayerParent = {
   created_at: string;
 };
 
+export type RegistrationWindow = {
+  id: string;
+  name: string;
+  description: string | null;
+  opens_at: string;
+  closes_at: string;
+  fee_cents: number;
+  currency: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -177,6 +190,32 @@ export type Database = {
         Row: PlayerParent;
         Insert: { player_id: string; profile_id: string; created_at?: string };
         Update: Record<string, never>;
+        Relationships: [];
+      };
+      registration_windows: {
+        Row: RegistrationWindow;
+        Insert: {
+          id?: string;
+          name: string;
+          description?: string | null;
+          opens_at: string;
+          closes_at: string;
+          fee_cents: number;
+          currency?: string;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          name?: string;
+          description?: string | null;
+          opens_at?: string;
+          closes_at?: string;
+          fee_cents?: number;
+          currency?: string;
+          is_active?: boolean;
+          updated_at?: string;
+        };
         Relationships: [];
       };
     };
