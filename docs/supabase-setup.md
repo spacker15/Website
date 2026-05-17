@@ -39,6 +39,12 @@ Then run `supabase/migrations/0004_registration_windows.sql` for the registratio
 - Public can read active windows (used by the homepage banner)
 - Only program leaders can create / edit / delete windows
 
+Then run `supabase/migrations/0005_registrations.sql` for parent registration submissions:
+
+- New table `registrations` (parent and player snapshots, status workflow, fee snapshot, Stripe fields stubbed for phase 3.2, approval fields stubbed for phase 3.3)
+- Parents can see / cancel only their own pending submissions
+- Program leaders can see and manage every submission
+
 ## 2. Set environment variables
 
 ### In Vercel (Production, Preview, Development)
