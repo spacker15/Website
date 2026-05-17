@@ -55,6 +55,12 @@ export default async function DashboardPage() {
           </Card>
         )}
         {isProgramLeader(user) && (
+          <Card title="Registration windows" href="/manage/registration">
+            Open and close registration for a season, set the fee, and watch
+            sign-ups roll in.
+          </Card>
+        )}
+        {isProgramLeader(user) && (
           <Card title="People & permissions" href="/manage/people">
             Grant head coaches, assistant coaches, parents, and volunteers
             access — site-wide or scoped to a single team.
