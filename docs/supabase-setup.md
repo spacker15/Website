@@ -49,11 +49,11 @@ Supabase Dashboard → Authentication → Settings → SMTP Settings:
 
 | Field | Value |
 | --- | --- |
-| Sender email | `creeksgirlslacross@gmail.com` |
+| Sender email | `creeksgirlslacrosse@gmail.com` |
 | Sender name | `Creek's Girls Lacrosse` |
 | Host | `smtp.gmail.com` |
 | Port | `465` |
-| Username | `creeksgirlslacross@gmail.com` |
+| Username | `creeksgirlslacrosse@gmail.com` |
 | Password | the Gmail App Password from Phase 1 |
 | Minimum interval | `60` (seconds; protects against accidental spam) |
 
