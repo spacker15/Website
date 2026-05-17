@@ -10,10 +10,33 @@ const credSchema = z.object({
   next: z.string().optional(),
 });
 
+const signUpSchema = credSchema
+  .extend({
+    confirmPassword: z.string().min(8).max(120),
+  })
+  .refine((d) => d.password === d.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
+
 const magicSchema = z.object({
   email: z.email("Enter a valid email").max(200),
   next: z.string().optional(),
 });
+
+const emailOnlySchema = z.object({
+  email: z.email("Enter a valid email").max(200),
+});
+
+const updatePasswordSchema = z
+  .object({
+    password: z.string().min(8, "Use at least 8 characters").max(120),
+    confirmPassword: z.string().min(8).max(120),
+  })
+  .refine((d) => d.password === d.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 type Result =
   | { ok: true; redirectTo?: string }
@@ -54,9 +77,9 @@ export async function signInWithPassword(
 }
 
 export async function signUpWithPassword(
-  input: z.infer<typeof credSchema>,
+  input: z.infer<typeof signUpSchema>,
 ): Promise<Result> {
-  const parsed = credSchema.safeParse(input);
+  const parsed = signUpSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
   try {
     const supabase = await createClient();
@@ -80,6 +103,45 @@ export async function signUpWithPassword(
     return { ok: true, redirectTo: next };
   } catch (err) {
     console.error("signUpWithPassword failed:", err);
+    return { ok: false, error: describeUnexpected(err) };
+  }
+}
+
+export async function sendPasswordReset(
+  input: z.infer<typeof emailOnlySchema>,
+): Promise<Result> {
+  const parsed = emailOnlySchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
+  try {
+    const supabase = await createClient();
+    const origin = await originUrl();
+    const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
+      redirectTo: `${origin}/login/callback?next=${encodeURIComponent("/login/reset")}`,
+    });
+    if (error) return { ok: false, error: error.message };
+    return { ok: true };
+  } catch (err) {
+    console.error("sendPasswordReset failed:", err);
+    return { ok: false, error: describeUnexpected(err) };
+  }
+}
+
+export async function updatePassword(
+  input: z.infer<typeof updatePasswordSchema>,
+): Promise<Result> {
+  const parsed = updatePasswordSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
+  try {
+    const supabase = await createClient();
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData.user) {
+      return { ok: false, error: "Recovery link expired. Request a new one." };
+    }
+    const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
+    if (error) return { ok: false, error: error.message };
+    return { ok: true, redirectTo: "/dashboard" };
+  } catch (err) {
+    console.error("updatePassword failed:", err);
     return { ok: false, error: describeUnexpected(err) };
   }
 }
