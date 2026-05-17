@@ -119,9 +119,9 @@ export default function SponsorsPage() {
           <Link href="/contact">
             <Button size="lg">Contact us about sponsoring</Button>
           </Link>
-          <a href="mailto:creeksgirlslacross@gmail.com?subject=Sponsorship%20inquiry">
+          <a href="mailto:creeksgirlslacrosse@gmail.com?subject=Sponsorship%20inquiry">
             <Button size="lg" variant="outline">
-              Email creeksgirlslacross@gmail.com
+              Email creeksgirlslacrosse@gmail.com
             </Button>
           </a>
         </div>

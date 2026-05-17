@@ -4,7 +4,7 @@ export const siteConfig = {
   description:
     "Official site of the Creek's Girls Lacrosse team — schedules, rosters, news, registration, and ways to support the program.",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://creeksgirlslacrosse.com",
-  contactEmail: "creeksgirlslacross@gmail.com",
+  contactEmail: "creeksgirlslacrosse@gmail.com",
   socials: {
     instagram: {
       handle: "@creeksgirlslacrosse",
