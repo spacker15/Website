@@ -68,6 +68,12 @@ export default async function DashboardPage() {
           </Card>
         )}
         {isProgramLeader(user) && (
+          <Card title="Waivers" href="/manage/waivers">
+            Edit liability, photo, and code-of-conduct waivers parents sign at
+            registration.
+          </Card>
+        )}
+        {isProgramLeader(user) && (
           <Card title="People & permissions" href="/manage/people">
             Grant head coaches, assistant coaches, parents, and volunteers
             access — site-wide or scoped to a single team.

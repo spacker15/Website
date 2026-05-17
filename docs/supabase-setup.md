@@ -45,6 +45,14 @@ Then run `supabase/migrations/0005_registrations.sql` for parent registration su
 - Parents can see / cancel only their own pending submissions
 - Program leaders can see and manage every submission
 
+Then run `supabase/migrations/0006_registration_v2.sql` for the full registration form + electronic waivers:
+
+- Extends `registrations` with guardian address & relationship, optional secondary guardian, emergency contact, USA Lacrosse membership, top-3 jersey preferences, sizes, years of experience, medical notes, school
+- New `waivers` table for program-leader-managed waiver templates (title + body + version + required + active + display order)
+- New `registration_waivers` table that snapshots the exact waiver text the parent signed (so future edits don't change historical signatures)
+- Seeds three editable starter waivers: Liability, Photo and video release, Code of conduct
+- Parents can read active waivers and sign on their own registration; program leaders can manage everything
+
 ## 2. Set environment variables
 
 ### In Vercel (Production, Preview, Development)
