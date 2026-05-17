@@ -68,9 +68,20 @@ export default async function DashboardPage() {
           </Card>
         )}
         {isProgramLeader(user) && (
+          <Card title="Custom fields" href="/manage/registration-fields">
+            Add ad-hoc questions to the registration form (dropdown, text,
+            checkbox, etc.).
+          </Card>
+        )}
+        {isProgramLeader(user) && (
           <Card title="Waivers" href="/manage/waivers">
             Edit liability, photo, and code-of-conduct waivers parents sign at
             registration.
+          </Card>
+        )}
+        {isProgramLeader(user) && (
+          <Card title="Schools" href="/manage/schools">
+            Manage the school list parents pick from on the registration form.
           </Card>
         )}
         {isProgramLeader(user) && (

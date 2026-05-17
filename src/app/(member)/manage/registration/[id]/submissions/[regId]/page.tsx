@@ -35,7 +35,13 @@ export default async function SubmissionDetailPage({
   const { id, regId } = await params;
   const supabase = await createClient();
 
-  const [{ data: reg }, { data: signatures }, { data: teams }] = await Promise.all([
+  const [
+    { data: reg },
+    { data: signatures },
+    { data: teams },
+    { data: schools },
+    { data: customFields },
+  ] = await Promise.all([
     supabase
       .from("registrations")
       .select("*")
@@ -48,13 +54,27 @@ export default async function SubmissionDetailPage({
       .eq("registration_id", regId)
       .order("signed_at"),
     supabase.from("teams").select("id, name"),
+    supabase.from("schools").select("id, name"),
+    supabase
+      .from("registration_fields")
+      .select("id, label, field_key, kind, display_order")
+      .order("display_order")
+      .order("label"),
   ]);
   if (!reg) notFound();
 
   const teamName = reg.requested_team_id
     ? ((teams ?? []).find((t) => t.id === reg.requested_team_id)?.name ?? "(deleted)")
     : "—";
+  const schoolName = (id: string | null) =>
+    id ? ((schools ?? []).find((s) => s.id === id)?.name ?? "(deleted)") : null;
+  const currentSchool =
+    schoolName(reg.current_school_id) ?? reg.current_school_other ?? reg.player_school ?? "—";
+  const zonedSchool =
+    schoolName(reg.zoned_high_school_id) ?? reg.zoned_high_school_other ?? "—";
   const age = computeAge(reg.player_date_of_birth);
+  const customAnswers: Record<string, string | number | boolean> =
+    (reg.custom_field_answers as Record<string, string | number | boolean>) ?? {};
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
@@ -77,7 +97,8 @@ export default async function SubmissionDetailPage({
         <Pair label="Name" value={`${reg.player_first_name} ${reg.player_last_name}`} />
         <Pair label="Date of birth" value={`${fmtDob(reg.player_date_of_birth)}${age !== null ? ` (age ${age})` : ""}`} />
         <Pair label="Grade" value={reg.player_grade ?? "—"} />
-        <Pair label="School" value={reg.player_school ?? "—"} />
+        <Pair label="Current school" value={currentSchool} />
+        <Pair label="Zoned high school" value={zonedSchool} />
         <Pair label="Position preference" value={reg.player_position} />
         <Pair
           label="USA Lacrosse"
@@ -128,6 +149,18 @@ export default async function SubmissionDetailPage({
           <Pair label="Relationship" value={reg.secondary_guardian_relationship ?? "—"} />
           <Pair label="Email" value={reg.secondary_guardian_email ?? "—"} />
           <Pair label="Phone" value={reg.secondary_guardian_phone ?? "—"} />
+          <Pair
+            label="Address"
+            value={[
+              reg.secondary_guardian_address_line1,
+              reg.secondary_guardian_address_line2,
+              [reg.secondary_guardian_city, reg.secondary_guardian_state, reg.secondary_guardian_zip]
+                .filter(Boolean)
+                .join(", "),
+            ]
+              .filter(Boolean)
+              .join(" · ") || "—"}
+          />
         </Section>
       )}
 
@@ -135,7 +168,32 @@ export default async function SubmissionDetailPage({
         <Pair label="Name" value={reg.emergency_contact_name ?? "—"} />
         <Pair label="Relationship" value={reg.emergency_contact_relationship ?? "—"} />
         <Pair label="Phone" value={reg.emergency_contact_phone ?? "—"} />
+        <Pair
+          label="Address"
+          value={[
+            reg.emergency_contact_address_line1,
+            reg.emergency_contact_address_line2,
+            [reg.emergency_contact_city, reg.emergency_contact_state, reg.emergency_contact_zip]
+              .filter(Boolean)
+              .join(", "),
+          ]
+            .filter(Boolean)
+            .join(" · ") || "—"}
+        />
       </Section>
+
+      {(customFields ?? []).length > 0 &&
+        Object.keys(customAnswers).length > 0 && (
+          <Section title="Additional info">
+            {(customFields ?? []).map((f) => {
+              const v = customAnswers[f.field_key];
+              if (v === undefined || v === null || v === "") return null;
+              const display =
+                typeof v === "boolean" ? (v ? "Yes" : "No") : String(v);
+              return <Pair key={f.field_key} label={f.label} value={display} />;
+            })}
+          </Section>
+        )}
 
       <Section title="Signed waivers">
         {!signatures || signatures.length === 0 ? (
