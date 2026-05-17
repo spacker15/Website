@@ -19,7 +19,7 @@ export default async function RegisterWindowPage({
   }
 
   const supabase = await createClient();
-  const [{ data: window }, { data: teams }] = await Promise.all([
+  const [{ data: window }, { data: teams }, { data: waivers }] = await Promise.all([
     supabase
       .from("registration_windows")
       .select("*")
@@ -27,6 +27,12 @@ export default async function RegisterWindowPage({
       .eq("is_active", true)
       .maybeSingle(),
     supabase.from("teams").select("id, name, season").order("name"),
+    supabase
+      .from("waivers")
+      .select("id, title, body, version, is_required, display_order")
+      .eq("is_active", true)
+      .order("display_order")
+      .order("created_at"),
   ]);
   if (!window) notFound();
 
@@ -59,6 +65,7 @@ export default async function RegisterWindowPage({
         <RegistrationForm
           windowId={window.id}
           teams={teams ?? []}
+          waivers={waivers ?? []}
           parentDefaults={{
             full_name: user.profile.full_name ?? "",
             email: user.email,

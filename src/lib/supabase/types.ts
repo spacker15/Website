@@ -97,12 +97,34 @@ export type Registration = {
   parent_full_name: string;
   parent_email: string;
   parent_phone: string | null;
+  parent_relationship: string | null;
+  parent_address_line1: string | null;
+  parent_address_line2: string | null;
+  parent_city: string | null;
+  parent_state: string | null;
+  parent_zip: string | null;
+  secondary_guardian_full_name: string | null;
+  secondary_guardian_email: string | null;
+  secondary_guardian_phone: string | null;
+  secondary_guardian_relationship: string | null;
+  emergency_contact_name: string | null;
+  emergency_contact_phone: string | null;
+  emergency_contact_relationship: string | null;
   player_first_name: string;
   player_last_name: string;
   player_date_of_birth: string | null;
   player_grade: string | null;
+  player_school: string | null;
   player_position: PlayerPosition;
-  player_jersey_pref: string | null;
+  player_usa_lacrosse_member: boolean;
+  player_usa_lacrosse_number: string | null;
+  player_jersey_pref_1: string | null;
+  player_jersey_pref_2: string | null;
+  player_jersey_pref_3: string | null;
+  player_tshirt_size: string | null;
+  player_pinnie_size: string | null;
+  player_years_experience: number | null;
+  player_medical_notes: string | null;
   requested_team_id: string | null;
   notes: string | null;
   status: RegistrationStatus;
@@ -116,6 +138,29 @@ export type Registration = {
   resulting_player_id: string | null;
   created_at: string;
   updated_at: string;
+};
+
+export type Waiver = {
+  id: string;
+  title: string;
+  body: string;
+  version: number;
+  is_required: boolean;
+  is_active: boolean;
+  display_order: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type RegistrationWaiver = {
+  id: string;
+  registration_id: string;
+  waiver_id: string;
+  waiver_version: number;
+  waiver_title_snapshot: string;
+  waiver_body_snapshot: string;
+  signed_by_name: string;
+  signed_at: string;
 };
 
 export type Database = {
@@ -262,12 +307,34 @@ export type Database = {
           parent_full_name: string;
           parent_email: string;
           parent_phone?: string | null;
+          parent_relationship?: string | null;
+          parent_address_line1?: string | null;
+          parent_address_line2?: string | null;
+          parent_city?: string | null;
+          parent_state?: string | null;
+          parent_zip?: string | null;
+          secondary_guardian_full_name?: string | null;
+          secondary_guardian_email?: string | null;
+          secondary_guardian_phone?: string | null;
+          secondary_guardian_relationship?: string | null;
+          emergency_contact_name?: string | null;
+          emergency_contact_phone?: string | null;
+          emergency_contact_relationship?: string | null;
           player_first_name: string;
           player_last_name: string;
           player_date_of_birth?: string | null;
           player_grade?: string | null;
+          player_school?: string | null;
           player_position?: PlayerPosition;
-          player_jersey_pref?: string | null;
+          player_usa_lacrosse_member?: boolean;
+          player_usa_lacrosse_number?: string | null;
+          player_jersey_pref_1?: string | null;
+          player_jersey_pref_2?: string | null;
+          player_jersey_pref_3?: string | null;
+          player_tshirt_size?: string | null;
+          player_pinnie_size?: string | null;
+          player_years_experience?: number | null;
+          player_medical_notes?: string | null;
           requested_team_id?: string | null;
           notes?: string | null;
           status?: RegistrationStatus;
@@ -282,27 +349,46 @@ export type Database = {
           created_at?: string;
           updated_at?: string;
         };
-        Update: {
-          parent_full_name?: string;
-          parent_phone?: string | null;
-          player_first_name?: string;
-          player_last_name?: string;
-          player_date_of_birth?: string | null;
-          player_grade?: string | null;
-          player_position?: PlayerPosition;
-          player_jersey_pref?: string | null;
-          requested_team_id?: string | null;
-          notes?: string | null;
-          status?: RegistrationStatus;
-          stripe_session_id?: string | null;
-          stripe_payment_intent_id?: string | null;
-          paid_at?: string | null;
-          approved_at?: string | null;
-          approved_by?: string | null;
-          rejected_reason?: string | null;
-          resulting_player_id?: string | null;
+        Update: Partial<Omit<Registration, "id" | "window_id" | "parent_profile_id" | "parent_email" | "created_at">>;
+        Relationships: [];
+      };
+      waivers: {
+        Row: Waiver;
+        Insert: {
+          id?: string;
+          title: string;
+          body: string;
+          version?: number;
+          is_required?: boolean;
+          is_active?: boolean;
+          display_order?: number;
+          created_at?: string;
           updated_at?: string;
         };
+        Update: {
+          title?: string;
+          body?: string;
+          version?: number;
+          is_required?: boolean;
+          is_active?: boolean;
+          display_order?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      registration_waivers: {
+        Row: RegistrationWaiver;
+        Insert: {
+          id?: string;
+          registration_id: string;
+          waiver_id: string;
+          waiver_version: number;
+          waiver_title_snapshot: string;
+          waiver_body_snapshot: string;
+          signed_by_name: string;
+          signed_at?: string;
+        };
+        Update: Record<string, never>;
         Relationships: [];
       };
     };

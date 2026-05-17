@@ -92,14 +92,17 @@ export default async function WindowSubmissionsPage({
             </thead>
             <tbody className="divide-y divide-neutral-200">
               {regs.map((r) => (
-                <tr key={r.id}>
+                <tr key={r.id} className="hover:bg-surface-muted">
                   <td className="px-4 py-3 text-ink-muted">
                     {fmtDate(r.created_at)}
                   </td>
                   <td className="px-4 py-3">
-                    <p className="font-medium text-ink">
+                    <Link
+                      href={`/manage/registration/${id}/submissions/${r.id}`}
+                      className="font-medium text-ink hover:text-brand-teal-700"
+                    >
                       {r.player_first_name} {r.player_last_name}
-                    </p>
+                    </Link>
                     {r.player_grade && (
                       <p className="text-xs text-ink-subtle">
                         Grade {r.player_grade}
