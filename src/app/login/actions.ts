@@ -19,8 +19,12 @@ type Result =
   | { ok: true; redirectTo?: string }
   | { ok: false; error: string };
 
-const GENERIC_ERROR =
-  "We couldn't reach the auth service. Please try again in a moment.";
+function describeUnexpected(err: unknown): string {
+  // Surface the underlying error so misconfigured env vars / unreachable
+  // Supabase show up in the form instead of being swallowed.
+  if (err instanceof Error && err.message) return `Auth error: ${err.message}`;
+  return "Auth error: unknown failure (check server logs).";
+}
 
 async function originUrl() {
   const h = await headers();
@@ -45,7 +49,7 @@ export async function signInWithPassword(
     return { ok: true, redirectTo: parsed.data.next ?? "/dashboard" };
   } catch (err) {
     console.error("signInWithPassword failed:", err);
-    return { ok: false, error: GENERIC_ERROR };
+    return { ok: false, error: describeUnexpected(err) };
   }
 }
 
@@ -76,7 +80,7 @@ export async function signUpWithPassword(
     return { ok: true, redirectTo: next };
   } catch (err) {
     console.error("signUpWithPassword failed:", err);
-    return { ok: false, error: GENERIC_ERROR };
+    return { ok: false, error: describeUnexpected(err) };
   }
 }
 
@@ -99,6 +103,6 @@ export async function sendMagicLink(
     return { ok: true };
   } catch (err) {
     console.error("sendMagicLink failed:", err);
-    return { ok: false, error: GENERIC_ERROR };
+    return { ok: false, error: describeUnexpected(err) };
   }
 }
