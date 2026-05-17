@@ -27,6 +27,16 @@ function bootstrapEmails(): string[] {
  * Cached per request so multiple consumers (layout, page, components) share
  * the same fetch.
  */
+function isNextInternalError(err: unknown): boolean {
+  // Next.js uses thrown errors for control flow (DYNAMIC_SERVER_USAGE marks
+  // a route as dynamic; NEXT_REDIRECT / NEXT_NOT_FOUND drive redirect() /
+  // notFound()). These MUST propagate — swallowing DYNAMIC_SERVER_USAGE
+  // causes pages to be cached statically without the auth check.
+  if (!err || typeof err !== "object") return false;
+  const digest = (err as { digest?: unknown }).digest;
+  return typeof digest === "string";
+}
+
 export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
   try {
     const supabase = await createClient();
@@ -69,6 +79,7 @@ export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
       roles: roles as UserRole[],
     };
   } catch (err) {
+    if (isNextInternalError(err)) throw err;
     // Missing env vars, network issues, or unexpected Supabase errors fall
     // through to "no session" so public pages still render.
     console.error("getSessionUser failed:", err);
