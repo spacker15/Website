@@ -67,6 +67,12 @@ Then run `supabase/migrations/0008_schools_high_school_flag.sql` to fix the zone
 - Backfills existing rows (Cathedral Parish stays K-8, the rest of the seeded private schools are HS-eligible)
 - Seeds Providence School of Jacksonville, Bishop Kenny, Bishop Snyder, Christ's Church Academy, Foundation Academy, University Christian School
 
+Then run `supabase/migrations/0009_duval_high_schools.sql` to add nearby Duval public high schools that some St. Johns players are zoned for:
+
+- Mandarin High School
+- Atlantic Coast High School
+- Sandalwood High School
+
 ## 2. Set environment variables
 
 ### In Vercel (Production, Preview, Development)
