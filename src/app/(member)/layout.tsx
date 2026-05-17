@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, isProgramLeader, managesAnyTeam } from "@/lib/auth";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 
@@ -20,14 +20,13 @@ export default async function MemberLayout({
           <nav className="flex flex-wrap gap-1 text-sm" aria-label="Member">
             <Tab href="/dashboard">Dashboard</Tab>
             <Tab href="/profile">Profile</Tab>
-            {user.roles.includes("head_coach") && (
-              <Tab href="/manage/teams">Manage teams</Tab>
-            )}
+            {managesAnyTeam(user) && <Tab href="/manage/teams">Manage teams</Tab>}
+            {isProgramLeader(user) && <Tab href="/manage/people">People</Tab>}
           </nav>
           <span className="ml-auto text-xs text-ink-muted">
             {user.email}
             {user.roles.length > 0 && (
-              <> · {user.roles.map(formatRole).join(", ")}</>
+              <> · {summarizeRoles(user.roles)}</>
             )}
           </span>
         </div>
@@ -49,6 +48,9 @@ function Tab({ href, children }: { href: string; children: React.ReactNode }) {
   );
 }
 
-function formatRole(role: string) {
-  return role.replace("_", " ").replace(/\b\w/g, (c) => c.toUpperCase());
+function summarizeRoles(roles: { role: string; teamId: string | null }[]): string {
+  const unique = Array.from(new Set(roles.map((r) => r.role)));
+  return unique
+    .map((r) => r.replace("_", " ").replace(/\b\w/g, (c) => c.toUpperCase()))
+    .join(", ");
 }

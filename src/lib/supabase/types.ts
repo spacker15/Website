@@ -1,4 +1,9 @@
-export type UserRole = "head_coach" | "assistant_coach" | "parent" | "volunteer";
+export type UserRole =
+  | "program_leader"
+  | "head_coach"
+  | "assistant_coach"
+  | "parent"
+  | "volunteer";
 
 export type PlayerPosition =
   | "attack"
@@ -18,8 +23,10 @@ export type Profile = {
 };
 
 export type ProfileRole = {
+  id: string;
   profile_id: string;
   role: UserRole;
+  team_id: string | null;
   created_at: string;
 };
 
@@ -88,8 +95,14 @@ export type Database = {
       };
       profile_roles: {
         Row: ProfileRole;
-        Insert: { profile_id: string; role: UserRole; created_at?: string };
-        Update: { role?: UserRole };
+        Insert: {
+          id?: string;
+          profile_id: string;
+          role: UserRole;
+          team_id?: string | null;
+          created_at?: string;
+        };
+        Update: { role?: UserRole; team_id?: string | null };
         Relationships: [];
       };
       teams: {

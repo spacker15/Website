@@ -18,6 +18,21 @@ Paste the contents of `supabase/migrations/0001_phase2_core.sql` and run it. Thi
 
 A migration only needs to run once. Re-running will fail because the types/tables already exist — that's expected.
 
+### Phase 3.0 — Program Leader
+
+After 0001 is applied, run the two phase-3 migrations **separately** (not in a single paste — PostgreSQL won't let you ALTER an enum and use the new value in the same transaction):
+
+1. Paste `supabase/migrations/0002_program_leader_enum.sql` and Run.
+2. Then paste `supabase/migrations/0003_program_leader_scope.sql` and Run.
+
+Together they:
+
+- Add a `program_leader` value to `user_role` (super-admin)
+- Add a nullable `team_id` to `profile_roles` so roles can be scoped to a team
+- Migrate existing site-wide `head_coach` rows to `program_leader`
+- Add helper functions `is_program_leader()`, `manages_team(team_id)`, `manages_player(player_id)`
+- Tighten RLS so team coaches can manage just their own team's roster, while program leaders manage everything
+
 ## 2. Set environment variables
 
 ### In Vercel (Production, Preview, Development)
@@ -27,7 +42,7 @@ A migration only needs to run once. Re-running will fail because the types/table
 | `NEXT_PUBLIC_SUPABASE_URL` | `https://inzbmjpylrukhoqiklms.supabase.co` |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | anon `public` key from Supabase → Settings → API |
 | `SUPABASE_SERVICE_ROLE_KEY` | service_role key from same page — **server-only**, never expose to client |
-| `BOOTSTRAP_HEAD_COACH_EMAILS` | comma-separated list of emails that auto-receive `head_coach` role on first sign-in |
+| `BOOTSTRAP_PROGRAM_LEADER_EMAILS` | comma-separated list of emails that auto-receive `program_leader` role on first sign-in. The old name `BOOTSTRAP_HEAD_COACH_EMAILS` is still read as a fallback. |
 | `GMAIL_USER`, `GMAIL_APP_PASSWORD` | already set in Phase 1 |
 | `NEXT_PUBLIC_SITE_URL` | the canonical site URL (e.g. `https://creeksgirlslacrosse.com` once DNS is live, or the current `*.vercel.app`) |
 

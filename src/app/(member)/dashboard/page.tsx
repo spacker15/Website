@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireUser } from "@/lib/auth";
+import { isProgramLeader, managesAnyTeam, requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 
@@ -9,9 +9,25 @@ export default async function DashboardPage() {
   const user = await requireUser();
   const supabase = await createClient();
 
-  const { data: teams } = user.roles.includes("head_coach")
-    ? await supabase.from("teams").select("id, name, season").order("name")
-    : { data: null };
+  // Program leaders see every team; team coaches see only the teams they manage.
+  const managedTeamIds = user.roles
+    .filter((r) => r.role === "head_coach" || r.role === "assistant_coach")
+    .map((r) => r.teamId)
+    .filter((id): id is string => !!id);
+
+  const teamsQuery = isProgramLeader(user)
+    ? supabase.from("teams").select("id, name, season").order("name")
+    : managedTeamIds.length > 0
+      ? supabase
+          .from("teams")
+          .select("id, name, season")
+          .in("id", managedTeamIds)
+          .order("name")
+      : null;
+
+  const { data: teams } = teamsQuery ? await teamsQuery : { data: null };
+
+  const showManageCard = managesAnyTeam(user);
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
@@ -24,8 +40,8 @@ export default async function DashboardPage() {
 
       {user.roles.length === 0 && (
         <div className="mt-6 rounded-lg border border-dashed border-neutral-300 p-6 text-sm text-ink-muted">
-          You don&apos;t have any roles assigned yet. A head coach can grant you
-          access. In the meantime, you can still update your profile.
+          You don&apos;t have any roles assigned yet. A program leader can grant
+          you access. In the meantime, you can still update your profile.
         </div>
       )}
 
@@ -33,17 +49,23 @@ export default async function DashboardPage() {
         <Card title="Your profile" href="/profile">
           Update your name, contact info, and avatar.
         </Card>
-        {user.roles.includes("head_coach") && (
+        {showManageCard && (
           <Card title="Manage teams" href="/manage/teams">
             Create teams, manage rosters, and control per-player visibility.
           </Card>
         )}
+        {isProgramLeader(user) && (
+          <Card title="People & permissions" href="/manage/people">
+            Grant head coaches, assistant coaches, parents, and volunteers
+            access — site-wide or scoped to a single team.
+          </Card>
+        )}
       </section>
 
-      {user.roles.includes("head_coach") && teams && teams.length > 0 && (
+      {teams && teams.length > 0 && (
         <section className="mt-10">
           <h2 className="font-display text-xl font-semibold text-ink">
-            Your teams
+            {isProgramLeader(user) ? "All teams" : "Your teams"}
           </h2>
           <ul className="mt-3 divide-y divide-neutral-200 rounded-lg border border-neutral-200 bg-white">
             {teams.map((t) => (
